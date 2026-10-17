@@ -1,78 +1,40 @@
-// Gestion des onglets de navigation
-function switchTab(evt, tabName) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabName).classList.add('active');
-    evt.currentTarget.classList.add('active');
-
-    if (tabName === 'carte' && window.mapInstance) {
-        window.mapInstance.invalidateSize();
-    }
+:root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --bg-color: #f4f6f5;
+    --text-color: #333333;
+    --card-bg: #ffffff;
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Initialisation de la carte Leaflet centrée sur le PNKB
-    const pnkbCenter = [-2.30, 28.75];
-    const map = L.map('map').setView(pnkbCenter, 10);
-    window.mapInstance = map;
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // TEMPORAIRE : Marqueur en attendant le fichier des limites officielles (GeoJSON)
-    L.marker(pnkbCenter).addTo(map)
-        .bindPopup('<b>Parc National de Kahuzi-Biega</b><br>Limites officielles à intégrer (GeoJSON)');
-
-    /* 
-      COMMENT INTÉGRER LES VRAIES LIMITES PLUS TARD :
-      Quand vous aurez votre fichier 'pnkb.geojson', vous pourrez décommenter 
-      le code ci-dessous pour tracer automatiquement les frontières du parc :
-      
-      fetch('pnkb.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: { color: '#2e7d32', weight: 2, fillColor: '#4caf50', fillOpacity: 0.2 }
-            }).addTo(map);
-        });
-    */
-
-    // Initialisation du Graphique sur 10 ans
-    const ctx = document.getElementById('forestChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: forestHistoricalData.years,
-            datasets: [{
-                label: 'Couvert forestier estimé (%)',
-                data: forestHistoricalData.canopyCoverPercent,
-                borderColor: '#2e7d32',
-                backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            },
-            scales: {
-                y: { min: 90, max: 100 }
-            }
-        }
-    });
-
-    // Enregistrement du Service Worker pour la PWA
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-    }
-});
-
-// Fonction d'export de rapport
-function generateReport() {
-    window.print();
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 60px; max-width: 1200px; margin: 0 auto; }
+header { background-color: var(--primary); color: white; padding: 15px; text-align: center; }
+header h1 { font-size: 1.25rem; margin-bottom: 4px; }
+header p { font-size: 0.85rem; opacity: 0.9; }
+.tab-nav { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 1000; }
+.tab-btn { flex: 1 0 auto; background: none; border: none; padding: 12px 15px; font-size: 0.85rem; font-weight: 600; color: #666; cursor: pointer; white-space: nowrap; }
+.tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+main { padding: 10px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.card { background: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.demo-banner { background-color: #fff8e1; border: 1px solid #ffe0b2; font-size: 0.85rem; }
+.demo-banner h3 { color: #e65100; font-size: 0.9rem; margin-bottom: 5px; }
+h2 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary-dark); }
+p, ul { font-size: 0.9rem; line-height: 1.4; margin-bottom: 8px; }
+#map { height: 300px; width: 100%; border-radius: 6px; margin-bottom: 10px; }
+.legend { font-size: 0.8rem; }
+.legend-item { display: flex; align-items: center; margin-top: 4px; }
+.box { width: 12px; height: 12px; display: inline-block; margin-right: 6px; border-radius: 2px; }
+.box.green { background-color: #4caf50; }
+.box.red { background-color: #f44336; }
+.box.orange { background-color: #ff9800; }
+.comparison-container { display: flex; flex-direction: column; gap: 10px; }
+.comp-box { background: #eee; padding: 10px; border-radius: 6px; text-align: center; }
+.mock-image { height: 150px; background: #ccc; display: flex; align-items: center; justify-content: center; margin-top: 5px; font-size: 0.85rem; color: #555; }
+.export-btn { background-color: var(--primary); color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; margin-top: 10px; cursor: pointer; font-size: 0.9rem; }
+@media print { .tab-nav, .export-btn, header { display: none; } .tab-content { display: block !important; } .card { box-shadow: none; border: 1px solid #ddd; } }
+@media(min-width: 768px) {
+    .comparison-container { flex-direction: row; }
+    .comp-box { flex: 1; }
+    #map { height: 450px; }
 }
