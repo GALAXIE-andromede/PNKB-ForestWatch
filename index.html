@@ -1,78 +1,82 @@
-// Gestion des onglets de navigation
-function switchTab(evt, tabName) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabName).classList.add('active');
-    evt.currentTarget.classList.add('active');
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNKB Forest Watch</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data.js"></script>
+</head>
+<body>
+    <header>
+        <h1>PNKB Forest Watch</h1>
+        <p>Suivi forestier du Parc national de Kahuzi-Biega (Sud-Kivu, RDC)</p>
+    </header>
 
-    if (tabName === 'carte' && window.mapInstance) {
-        window.mapInstance.invalidateSize();
-    }
-}
+    <nav class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'accueil')">Accueil</button>
+        <button class="tab-btn" onclick="switchTab(event, 'carte')">Carte</button>
+        <button class="tab-btn" onclick="switchTab(event, 'comparaison')">2015-2025</button>
+        <button class="tab-btn" onclick="switchTab(event, 'indicateurs')">Statistiques</button>
+        <button class="tab-btn" onclick="switchTab(event, 'sources')">Sources</button>
+    </nav>
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Initialisation de la carte Leaflet centrée sur le PNKB
-    const pnkbCenter = [-2.30, 28.75];
-    const map = L.map('map').setView(pnkbCenter, 10);
-    window.mapInstance = map;
+    <main>
+        <section id="accueil" class="tab-content active">
+            <div class="card demo-banner">
+                <h3>⚠️ Statut : Données de démonstration</h3>
+                <p>Les flux satellitaires ne sont pas connectés. Version de démonstration. Les limites officielles du PNKB seront intégrées ultérieurement via GeoJSON.</p>
+            </div>
+            <div class="card">
+                <h2>Bienvenue sur PNKB Forest Watch</h2>
+                <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
+            </div>
+        </section>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+        <section id="carte" class="tab-content">
+            <div class="card">
+                <h2>Carte Interactive & Limites</h2>
+                <div id="map"></div>
+                <div class="legend">
+                    <p><strong>Légende :</strong></p>
+                    <span class="legend-item"><i class="box green"></i> Couvert forestier stable</span>
+                    <span class="legend-item"><i class="box red"></i> Perte potentielle détectée</span>
+                    <span class="legend-item"><i class="box orange"></i> Zone tampon / Périphérie</span>
+                </div>
+            </div>
+        </section>
 
-    // TEMPORAIRE : Marqueur en attendant le fichier des limites officielles (GeoJSON)
-    L.marker(pnkbCenter).addTo(map)
-        .bindPopup('<b>Parc National de Kahuzi-Biega</b><br>Limites officielles à intégrer (GeoJSON)');
+        <section id="comparaison" class="tab-content">
+            <div class="card">
+                <h2>Comparaison 2015 - 2025</h2>
+                <div class="comparison-container">
+                    <div class="comp-box"><h4>2015</h4><div class="mock-image">Imagerie référence 2015</div></div>
+                    <div class="comp-box"><h4>2025</h4><div class="mock-image">Imagerie référence 2025</div></div>
+                </div>
+            </div>
+        </section>
 
-    /* 
-      COMMENT INTÉGRER LES VRAIES LIMITES PLUS TARD :
-      Quand vous aurez votre fichier 'pnkb.geojson', vous pourrez décommenter 
-      le code ci-dessous pour tracer automatiquement les frontières du parc :
-      
-      fetch('pnkb.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: { color: '#2e7d32', weight: 2, fillColor: '#4caf50', fillOpacity: 0.2 }
-            }).addTo(map);
-        });
-    */
+        <section id="indicateurs" class="tab-content">
+            <div class="card">
+                <h2>Évolution Historique (10 ans)</h2>
+                <canvas id="forestChart"></canvas>
+                <button onclick="generateReport()" class="export-btn">📥 Exporter le rapport (PDF / Imprimer)</button>
+            </div>
+        </section>
 
-    // Initialisation du Graphique sur 10 ans
-    const ctx = document.getElementById('forestChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: forestHistoricalData.years,
-            datasets: [{
-                label: 'Couvert forestier estimé (%)',
-                data: forestHistoricalData.canopyCoverPercent,
-                borderColor: '#2e7d32',
-                backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            },
-            scales: {
-                y: { min: 90, max: 100 }
-            }
-        }
-    });
+        <section id="sources" class="tab-content">
+            <div class="card">
+                <h2>Sources</h2>
+                <p>Landsat (NASA/USGS), Sentinel (Copernicus/ESA), Global Forest Watch (GFW).</p>
+            </div>
+        </section>
+    </main>
 
-    // Enregistrement du Service Worker pour la PWA
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-    }
-});
-
-// Fonction d'export de rapport
-function generateReport() {
-    window.print();
-}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
