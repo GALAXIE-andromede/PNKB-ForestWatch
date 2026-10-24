@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "name": "PNKB_limites_approximatives",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Parc National de Kahuzi-Biega",
+        "note": "LIMITES APPROXIMATIVES — à remplacer par le GeoJSON officiel (ICCN / Wildlife Conservation Society / Protected Planet : https://www.protectedplanet.net)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.83, -1.86],
+            [28.95, -1.95],
+            [28.90, -2.10],
+            [28.70, -2.25],
+            [28.50, -2.35],
+            [28.35, -2.15],
+            [28.45, -1.95],
+            [28.60, -1.85],
+            [28.83, -1.86]
+          ]
+        ]
+      }
+    }
+  ]
+}
