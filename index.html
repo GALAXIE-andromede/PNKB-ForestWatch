@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="data.js"></script>
+    <script src="data/alerts.js"></script>
 </head>
 <body>
     <header>
@@ -20,6 +21,7 @@
     <nav class="tab-nav">
         <button class="tab-btn active" onclick="switchTab(event, 'accueil')">Accueil</button>
         <button class="tab-btn" onclick="switchTab(event, 'carte')">Carte</button>
+        <button class="tab-btn" onclick="switchTab(event, 'alertes')">Alertes</button>
         <button class="tab-btn" onclick="switchTab(event, 'comparaison')">2015-2025</button>
         <button class="tab-btn" onclick="switchTab(event, 'indicateurs')">Statistiques</button>
         <button class="tab-btn" onclick="switchTab(event, 'sources')">Sources</button>
@@ -27,13 +29,11 @@
 
     <main>
         <section id="accueil" class="tab-content active">
-            <div class="card demo-banner">
-                <h3>⚠️ Statut : Données de démonstration</h3>
-                <p>Les flux satellitaires ne sont pas connectés. Version de démonstration. Les limites officielles du PNKB seront intégrées ultérieurement via GeoJSON.</p>
-            </div>
+            <div class="card demo-banner" id="scan-banner"></div>
             <div class="card">
                 <h2>Bienvenue sur PNKB Forest Watch</h2>
                 <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
+                <p>Les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement chaque semaine : détection des pertes forestières, mise à jour de cette page et envoi d'alertes Telegram.</p>
             </div>
         </section>
 
@@ -43,10 +43,18 @@
                 <div id="map"></div>
                 <div class="legend">
                     <p><strong>Légende :</strong></p>
-                    <span class="legend-item"><i class="box green"></i> Couvert forestier stable</span>
-                    <span class="legend-item"><i class="box red"></i> Perte potentielle détectée</span>
-                    <span class="legend-item"><i class="box orange"></i> Zone tampon / Périphérie</span>
+                    <span class="legend-item"><i class="box green"></i> Limites du parc / couvert forestier stable</span>
+                    <span class="legend-item"><i class="box red"></i> Perte forestière détectée (élevée)</span>
+                    <span class="legend-item"><i class="box orange"></i> Perte forestière détectée (moyenne)</span>
                 </div>
+            </div>
+        </section>
+
+        <section id="alertes" class="tab-content">
+            <div class="card">
+                <h2>Alertes de déforestation</h2>
+                <div id="alerts-summary"></div>
+                <div id="alerts-list"></div>
             </div>
         </section>
 
@@ -71,7 +79,7 @@
         <section id="sources" class="tab-content">
             <div class="card">
                 <h2>Sources</h2>
-                <p>Landsat (NASA/USGS), Sentinel (Copernicus/ESA), Global Forest Watch (GFW).</p>
+                <p>Landsat (NASA/USGS), Sentinel-2 (Copernicus/ESA), Global Forest Watch (GFW).</p>
             </div>
         </section>
     </main>
