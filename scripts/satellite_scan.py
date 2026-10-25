@@ -36,7 +36,7 @@ IMG_SIZE = 512
 GRID = 16                      # découpage de l'image en blocs pour regrouper les pertes
 NDVI_LOSS_THRESHOLD = 0.30     # baisse de NDVI considérée comme une perte
 NDVI_FOREST_MIN = 0.55         # NDVI minimal pour considérer la zone forestière
-ALERT_AREA_THRESHOLD_HA = 5    # seuil d'alerte Telegram (hectares)
+ALERT_AREA_THRESHOLD_HA = 0.05    # seuil d'alerte Telegram (hectares)
 
 # Renvoie [NDVI quantifié sur 255 niveaux, masque de validité]
 EVALSCRIPT = """
