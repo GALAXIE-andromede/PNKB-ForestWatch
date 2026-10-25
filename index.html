@@ -30,6 +30,10 @@
     <main>
         <section id="accueil" class="tab-content active">
             <div class="card demo-banner" id="scan-banner"></div>
+            <div class="card" id="impact-stats-card" style="display:none;">
+                <h2>🌟 Notre impact</h2>
+                <div id="impact-stats"></div>
+            </div>
             <div class="card">
                 <h2>Bienvenue sur PNKB Forest Watch</h2>
                 <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
@@ -72,6 +76,11 @@
                 <div id="alerts-summary"></div>
                 <div id="alerts-list"></div>
             </div>
+            <div class="card">
+                <h2>📜 Journal des alertes (historique)</h2>
+                <p style="font-size:13px;color:#555;">Historique des scans passés, accumulé semaine après semaine.</p>
+                <div id="alerts-history"></div>
+            </div>
         </section>
 
         <section id="comparaison" class="tab-content">
@@ -89,6 +98,11 @@
                 <h2>Évolution Historique (10 ans)</h2>
                 <canvas id="forestChart"></canvas>
                 <button onclick="generateReport()" class="export-btn">📥 Exporter le rapport (PDF / Imprimer)</button>
+            </div>
+            <div class="card">
+                <h2>📊 Pertes détectées par scan</h2>
+                <p style="font-size:13px;color:#555;">Hectares de perte forestière estimés à chaque scan hebdomadaire Sentinel-2.</p>
+                <canvas id="historyChart"></canvas>
             </div>
         </section>
 
