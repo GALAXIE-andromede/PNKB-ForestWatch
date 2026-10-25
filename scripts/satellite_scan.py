@@ -1,14 +1,23 @@
 """
 Scan satellitaire hebdomadaire du Parc National de Kahuzi-Biega.
 100% gratuit : Copernicus Dataspace (Sentinel-2) + alertes Telegram.
-Exécuté automatiquement par GitHub Actions (voir .github/workflows/satellite.yml).
+Exécuté automatiquement par GitHub Actions (voir .github/workflows/).
 
 Étapes :
 1. Authentification auprès de Copernicus Dataspace (identifiants gratuits)
 2. Téléchargement de 2 images NDVI Sentinel-2 (référence / période récente)
 3. Détection des pixels de perte forestière
 4. Écriture de data/alerts.js (affiché par la carte Leaflet du dashboard)
-5. Alerte Telegram si la perte dépasse le seuil
+5. Alerte Telegram si la perte dépasse le seuil — envoyée à TOUS les abonnés.
+
+Abonnements publics : toute personne qui ouvre le bot
+(t.me/pnkb_forestwatch_alert_bot) et appuie sur « DÉMARRER » est ajoutée
+automatiquement à data/subscribers.json et recevra les prochaines alertes.
+
+Modes :
+- python scripts/satellite_scan.py                → scan satellitaire complet
+- python scripts/satellite_scan.py --abonnements → traite uniquement les
+  nouveaux abonnés Telegram (utilisé par le workflow quotidien)
 
 Limites connues (MVP) :
 - Résolution grossière (le parc entier sur une image 512x512) ; à affiner
@@ -28,6 +37,9 @@ from PIL import Image
 
 TOKEN_URL = "https://identity.dataspace.copernicus.com/auth/realms/CDSE/protocol/openid-connect/token"
 PROCESS_URL = "https://sh.dataspace.copernicus.com/api/v1/process"
+TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
+SUBSCRIBERS_FILE = "data/subscribers.json"
+DASHBOARD_URL = "https://galaxie-andromede.github.io/PNKB-ForestWatch/"
 
 # Zone approximative du PNKB (à remplacer par les limites officielles,
 # voir data/pnkb_boundary.geojson)
@@ -36,7 +48,7 @@ IMG_SIZE = 512
 GRID = 16                      # découpage de l'image en blocs pour regrouper les pertes
 NDVI_LOSS_THRESHOLD = 0.30     # baisse de NDVI considérée comme une perte
 NDVI_FOREST_MIN = 0.55         # NDVI minimal pour considérer la zone forestière
-ALERT_AREA_THRESHOLD_HA = 0.05    # seuil d'alerte Telegram (hectares)
+ALERT_AREA_THRESHOLD_HA = 0.05  # seuil d'alerte Telegram (hectares)
 
 # Renvoie [NDVI quantifié sur 255 niveaux, masque de validité]
 EVALSCRIPT = """
@@ -154,19 +166,133 @@ def cluster_losses(ndvi_before, valid_before, ndvi_after, valid_after):
     return zones, total_ha
 
 
+# ---------- Abonnements Telegram (public) ----------
+
+def get_bot_token():
+    return os.environ.get("TELEGRAM_BOT_TOKEN", "")
+
+
+def load_subscribers():
+    """Charge la liste des abonnés (data/subscribers.json)."""
+    if not os.path.exists(SUBSCRIBERS_FILE):
+        return {"chat_ids": [], "update_offset": 0}
+    try:
+        with open(SUBSCRIBERS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    data.setdefault("chat_ids", [])
+    data.setdefault("update_offset", 0)
+    return data
+
+
+def save_subscribers(subs):
+    subs["_note"] = "Fichier géré automatiquement par scripts/satellite_scan.py — ne pas modifier à la main."
+    os.makedirs("data", exist_ok=True)
+    with open(SUBSCRIBERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(subs, f, ensure_ascii=False, indent=2)
+
+
+def process_new_subscribers(token):
+    """Détecte les personnes ayant appuyé sur « DÉMARRER » (API getUpdates),
+    les ajoute à la liste des abonnés et leur envoie un message de confirmation."""
+    subs = load_subscribers()
+    try:
+        resp = requests.get(
+            TELEGRAM_API.format(token=token, method="getUpdates"),
+            params={"offset": subs["update_offset"], "timeout": 0},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        updates = resp.json().get("result", [])
+    except requests.RequestException as exc:
+        print(f"⚠️ Impossible de lire getUpdates : {exc}")
+        return subs
+
+    known = {str(c) for c in subs["chat_ids"]}
+    new_ids = []
+    for upd in updates:
+        subs["update_offset"] = max(subs["update_offset"], upd.get("update_id", 0) + 1)
+        msg = upd.get("message") or upd.get("edited_message") or {}
+        chat = msg.get("chat") or {}
+        chat_id = chat.get("id")
+        if chat_id is None or str(chat_id) in known or str(chat_id) in {str(n) for n in new_ids}:
+            continue
+        text = (msg.get("text") or "").strip().lower()
+        # S'abonner : message privé (l'utilisateur a forcément appuyé sur DÉMARRER)
+        # ou commande /start explicite.
+        if chat.get("type") == "private" or text.startswith("/start"):
+            new_ids.append(chat_id)
+
+    for chat_id in new_ids:
+        subs["chat_ids"].append(chat_id)
+        try:
+            resp = requests.post(
+                TELEGRAM_API.format(token=token, method="sendMessage"),
+                json={
+                    "chat_id": chat_id,
+                    "text": (
+                        "✅ Bienvenue sur PNKB Forest Watch !\n\n"
+                        "Vous recevrez désormais une alerte dès qu'une perte forestière "
+                        "est détectée dans le Parc national de Kahuzi-Biega "
+                        "(scan Sentinel-2 chaque lundi).\n\n"
+                        f"🌐 Dashboard : {DASHBOARD_URL}\n"
+                        "🔕 Pour arrêter les alertes : bloquez simplement ce bot."
+                    ),
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"⚠️ Message de bienvenue non envoyé à {chat_id} : {exc}")
+        print(f"🆕 Nouvel abonné Telegram : {chat_id}")
+
+    if new_ids:
+        save_subscribers(subs)
+        print(f"✅ {len(new_ids)} nouvel(s) abonné(s) enregistré(s) dans {SUBSCRIBERS_FILE}.")
+    return subs
+
+
 def send_telegram(message):
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
-    if not token or not chat_id:
+    """Envoie le message au Chat ID principal ET à tous les abonnés ;
+    retire de la liste les abonnés qui ont bloqué le bot (erreur 403)."""
+    token = get_bot_token()
+    main_id = os.environ.get("TELEGRAM_CHAT_ID", "")
+    if not token or not main_id:
         print("⚠️ Telegram non configuré (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID) : alerte ignorée.")
         return
-    resp = requests.post(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": message},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    print("✅ Alerte Telegram envoyée.")
+
+    subs = load_subscribers()
+    recipients = []
+    if main_id not in {str(c) for c in subs["chat_ids"]}:
+        recipients.append(str(main_id))
+    recipients += [str(c) for c in subs["chat_ids"]]
+
+    blocked = []
+    sent = 0
+    for chat_id in recipients:
+        try:
+            resp = requests.post(
+                TELEGRAM_API.format(token=token, method="sendMessage"),
+                json={"chat_id": chat_id, "text": message},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            sent += 1
+        except requests.HTTPError:
+            if getattr(resp, "status_code", None) == 403:
+                blocked.append(chat_id)
+            print(f"⚠️ Envoi impossible à {chat_id} (bot bloqué ?).")
+        except requests.RequestException as exc:
+            print(f"⚠️ Erreur d'envoi Telegram ({chat_id}) : {exc}")
+
+    if blocked:
+        subs["chat_ids"] = [c for c in subs["chat_ids"] if str(c) not in blocked]
+        save_subscribers(subs)
+        print(f"🗑️ {len(blocked)} abonné(s) retiré(s) de la liste (bot bloqué).")
+    print(f"✅ Alerte Telegram envoyée à {sent} destinataire(s).")
 
 
 def write_alerts_js(zones, total_ha, scan_date, status, detail=""):
@@ -188,13 +314,31 @@ def write_alerts_js(zones, total_ha, scan_date, status, detail=""):
     print(f"✅ data/alerts.js mis à jour ({len(zones)} zone(s), ~{total_ha} ha au total).")
 
 
+def subscribers_mode():
+    """Mode --abonnements : traite uniquement les nouveaux abonnés Telegram."""
+    token = get_bot_token()
+    if not token:
+        print("⚠️ TELEGRAM_BOT_TOKEN manquant : impossible de traiter les abonnements.")
+        return
+    subs = process_new_subscribers(token)
+    save_subscribers(subs)
+    print(f"👥 Abonnés actuels : {len(subs['chat_ids'])}.")
+
+
 def main():
+    if "--abonnements" in sys.argv:
+        subscribers_mode()
+        return
+
     missing = [k for k in ("COPERNICUS_CLIENT_ID", "COPERNICUS_CLIENT_SECRET") if not os.environ.get(k)]
     if missing:
         write_alerts_js(
             [], 0.0, "", "not_configured",
             "Identifiants Copernicus manquants. Ajoutez les secrets GitHub : " + ", ".join(missing),
         )
+        # Les abonnements fonctionnent même sans Copernicus (seul le scan est bloqué).
+        if get_bot_token():
+            process_new_subscribers(get_bot_token())
         return
 
     today = datetime.now(timezone.utc).date()
@@ -211,6 +355,10 @@ def main():
 
     scan_date = today.isoformat()
     write_alerts_js(zones, total_ha, scan_date, "ok")
+
+    # Enregistre les personnes ayant appuyé sur « DÉMARRER » depuis le dernier passage.
+    if get_bot_token():
+        process_new_subscribers(get_bot_token())
 
     if zones and total_ha >= ALERT_AREA_THRESHOLD_HA:
         top = sorted(zones, key=lambda z: -z["area_ha"])[:5]
