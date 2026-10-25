@@ -1,0 +1,5 @@
+{
+  "chat_ids": [],
+  "update_offset": 0,
+  "_note": "Liste des abonnés aux alertes Telegram. Géré automatiquement par scripts/satellite_scan.py — ne pas modifier à la main."
+}

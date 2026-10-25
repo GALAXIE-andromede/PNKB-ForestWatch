@@ -1,0 +1,40 @@
+name: Analyse satellitaire PNKB
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # chaque lundi à 06:00 UTC
+  workflow_dispatch:       # permet aussi le déclenchement manuel
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v4
+
+      - name: Installation de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installation des dépendances
+        run: pip install requests pillow numpy
+
+      - name: Scan satellitaire Sentinel-2 (gratuit, Copernicus Dataspace)
+        env:
+          COPERNICUS_CLIENT_ID: ${{ secrets.COPERNICUS_CLIENT_ID }}
+          COPERNICUS_CLIENT_SECRET: ${{ secrets.COPERNICUS_CLIENT_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/satellite_scan.py
+
+      - name: Commit des nouvelles données
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/alerts.js
+          git commit -m "Mise à jour automatique : scan satellitaire du $(date -u +%F)" || echo "Aucun changement à committer"
+          git push
