@@ -1,7 +1,7 @@
 """
 Journal des alertes + statistiques d'impact publics pour PNKB Forest Watch.
 
-Ce module est appelé par scripts/satellite_scan.py à la fin de chaque scan :
+Ce module est appelé par scripts/update_stats.py après chaque scan :
 - data/history.json : historique des scans (date, perte, zones principales)
 - data/stats.json   : statistiques d'impact affichées sur le dashboard
   (abonnés, alertes envoyées, scans réalisés, hectares surveillés).
@@ -61,10 +61,9 @@ def update_history_and_stats(zones, total_ha, scan_date, status, subscribers_fil
     """Met à jour le journal (history.json) et les statistiques (stats.json)
     après un scan. Renvoie 1 si une alerte a été envoyée pour ce scan, sinon 0.
 
-    - zones : liste des zones de perte détectées (dicts lat/lon/area_ha/severity)
-    - total_ha : perte totale estimée (hectares)
-    - scan_date : date ISO du scan (ex. "2026-10-25")
-    - status : "ok" ou autre statut de scan
+    Un scan déjà journalisé à la même date est mis à jour (remplacé) sans
+    être compté deux fois : c'est le cas si le scan échoue et que alerts.js
+    contient encore les données de la semaine précédente.
     """
     # Nombre de destinataires Telegram (abonnés + chat principal éventuel)
     subs = load_json(subscribers_file, {"chat_ids": []})
@@ -75,9 +74,13 @@ def update_history_and_stats(zones, total_ha, scan_date, status, subscribers_fil
 
     alert_sent = 1 if (zones and total_ha >= 0.05) else 0
 
-    # --- Journal des scans (une entrée par date ; re-scan même date = remplace) ---
+    # --- Journal des scans ---
     history = load_history()
-    scans = [s for s in history.get("scans", []) if s.get("date") != scan_date]
+    old_scans = history.get("scans", [])
+    previous = next((s for s in old_scans if s.get("date") == scan_date), None)
+    already_counted = previous is not None
+
+    scans = [s for s in old_scans if s.get("date") != scan_date]
     scans.append({
         "date": scan_date,
         "status": status,
@@ -95,14 +98,21 @@ def update_history_and_stats(zones, total_ha, scan_date, status, subscribers_fil
     stats = load_stats()
     if not stats.get("first_scan_date") or scan_date < stats["first_scan_date"]:
         stats["first_scan_date"] = scan_date
-    stats["scans_total"] = stats.get("scans_total", 0) + 1
-    stats["alerts_sent"] = stats.get("alerts_sent", 0) + alert_sent
+    if not already_counted:
+        stats["scans_total"] = stats.get("scans_total", 0) + 1
+        stats["alerts_sent"] = stats.get("alerts_sent", 0) + alert_sent
+        stats["loss_cumulative_ha"] = round(
+            stats.get("loss_cumulative_ha", 0.0) + float(total_ha), 1
+        )
+    else:
+        # Re-traitement de la même date : ajuster le cumul à la nouvelle valeur.
+        delta = float(total_ha) - float(previous.get("total_loss_ha", 0.0))
+        stats["loss_cumulative_ha"] = round(
+            stats.get("loss_cumulative_ha", 0.0) + delta, 1
+        )
     stats["subscribers_peak"] = max(stats.get("subscribers_peak", 0), subscribers_count)
     stats["current_subscribers"] = subscribers_count
     stats["monitored_area_ha"] = PNKB_AREA_HA
-    stats["loss_cumulative_ha"] = round(
-        stats.get("loss_cumulative_ha", 0.0) + float(total_ha), 1
-    )
     save_json(STATS_FILE, stats)
     print(f"✅ {STATS_FILE} mis à jour.")
 
