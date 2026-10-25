@@ -26,8 +26,95 @@ function renderScanBanner() {
         banner.className = 'card demo-banner';
         banner.innerHTML = `
             <h3>⏳ En attente du premier scan</h3>
-            <p>${lastScan.detail || 'Lancez le workflow « Analyse satellitaire PNKB » dans l\'onglet Actions du dépôt GitHub.'}</p>`;
+            <p>${lastScan.detail || 'Lancez le workflow « Analyse satellitaire PNKB » dans l\\'onglet Actions du dépôt GitHub.'}</p>`;
     }
+}
+
+/* ---------- Chargement asynchrone de history.json / stats.json ---------- */
+async function loadDataFile(path) {
+    try {
+        const res = await fetch(path, { cache: 'no-store' });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (e) {
+        console.warn(`Impossible de charger ${path} :`, e);
+        return null;
+    }
+}
+
+/* ---------- Statistiques d'impact (bandeau public) ---------- */
+function renderImpactStats(stats) {
+    const card = document.getElementById('impact-stats-card');
+    const box = document.getElementById('impact-stats');
+    if (!card || !box || !stats) return;
+
+    const since = stats.first_scan_date
+        ? `depuis le ${stats.first_scan_date}`
+        : 'en attente du premier scan';
+    const subscribers = stats.current_subscribers || 0;
+    const alertsSent = stats.alerts_sent || 0;
+    const scansTotal = stats.scans_total || 0;
+    const hectares = (stats.monitored_area_ha || 600000).toLocaleString('fr-FR');
+    const lossCumul = (stats.loss_cumulative_ha || 0).toLocaleString('fr-FR');
+
+    card.style.display = 'block';
+    box.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:12px;text-align:center;">
+            <div style="flex:1;min-width:130px;background:#e8f5e9;border-radius:10px;padding:14px;">
+                <div style="font-size:26px;font-weight:bold;color:#2e7d32;">👥 ${subscribers}</div>
+                <div style="font-size:12px;color:#555;">abonnés aux alertes</div>
+            </div>
+            <div style="flex:1;min-width:130px;background:#fff3e0;border-radius:10px;padding:14px;">
+                <div style="font-size:26px;font-weight:bold;color:#e65100;">🚨 ${alertsSent}</div>
+                <div style="font-size:12px;color:#555;">alertes envoyées</div>
+            </div>
+            <div style="flex:1;min-width:130px;background:#e3f2fd;border-radius:10px;padding:14px;">
+                <div style="font-size:26px;font-weight:bold;color:#1565c0;">🛰️ ${scansTotal}</div>
+                <div style="font-size:12px;color:#555;">scans réalisés</div>
+            </div>
+            <div style="flex:1;min-width:130px;background:#f3e5f5;border-radius:10px;padding:14px;">
+                <div style="font-size:26px;font-weight:bold;color:#6a1b9a;">🌳 ${hectares}</div>
+                <div style="font-size:12px;color:#555;">hectares surveillés</div>
+            </div>
+        </div>
+        <p style="font-size:12px;color:#777;margin-top:10px;margin-bottom:0;">
+            Perte cumulée détectée : <strong>${lossCumul} ha</strong> — ${since}.
+        </p>`;
+}
+
+/* ---------- Journal des alertes (historique) ---------- */
+function renderAlertsHistory(history) {
+    const box = document.getElementById('alerts-history');
+    if (!box) return;
+    if (!history || !history.scans || history.scans.length === 0) {
+        box.innerHTML = '<p>📜 Le journal se remplira automatiquement à chaque scan hebdomadaire (chaque lundi). Revenez bientôt !</p>';
+        return;
+    }
+    const rows = history.scans.slice().reverse().map(s => {
+        const icon = s.alert_sent ? '🚨' : '✅';
+        const loss = (s.total_loss_ha || 0).toLocaleString('fr-FR');
+        return `
+            <tr>
+                <td>${s.date}</td>
+                <td>${icon} ${loss} ha</td>
+                <td>${s.zone_count || 0}</td>
+                <td>${s.alert_sent ? 'Alerte envoyée' : 'Rien de significatif'}</td>
+            </tr>`;
+    }).join('');
+    box.innerHTML = `
+        <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid #2e7d32;text-align:left;">
+                    <th style="padding:6px;">Date du scan</th>
+                    <th style="padding:6px;">Perte estimée</th>
+                    <th style="padding:6px;">Zones</th>
+                    <th style="padding:6px;">Résultat</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
+        </div>`;
 }
 
 /* ---------- Panneau Alertes ---------- */
@@ -94,7 +181,7 @@ async function initMap() {
     });
 }
 
-/* ---------- Graphique historique ---------- */
+/* ---------- Graphiques ---------- */
 function initChart() {
     const ctx = document.getElementById('forestChart').getContext('2d');
     new Chart(ctx, {
@@ -119,11 +206,49 @@ function initChart() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initHistoryChart(history) {
+    const canvas = document.getElementById('historyChart');
+    if (!canvas) return;
+    if (!history || !history.scans || history.scans.length === 0) {
+        canvas.parentElement.insertAdjacentHTML('beforeend',
+            '<p style="font-size:13px;color:#555;">Le graphique apparaîtra dès le premier scan.</p>');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: history.scans.map(s => s.date),
+            datasets: [{
+                label: 'Perte forestière estimée (ha)',
+                data: history.scans.map(s => s.total_loss_ha || 0),
+                backgroundColor: 'rgba(211, 47, 47, 0.6)',
+                borderColor: '#d32f2f',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+/* ---------- Initialisation ---------- */
+document.addEventListener("DOMContentLoaded", async () => {
     renderScanBanner();
     renderAlertsPanel();
     initMap();
     initChart();
+
+    const [stats, history] = await Promise.all([
+        loadDataFile('data/stats.json'),
+        loadDataFile('data/history.json')
+    ]);
+    renderImpactStats(stats);
+    renderAlertsHistory(history);
+    initHistoryChart(history);
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
