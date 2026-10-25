@@ -5,22 +5,65 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Parc National de Kahuzi-Biega",
-        "note": "LIMITES APPROXIMATIVES — à remplacer par le GeoJSON officiel (ICCN / Wildlife Conservation Society / Protected Planet : https://www.protectedplanet.net)."
+        "name": "Secteur montagnard (Monts Kahuzi-Biega)",
+        "sector": "montagnard"
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [28.83, -1.86],
-            [28.95, -1.95],
-            [28.90, -2.10],
-            [28.70, -2.25],
-            [28.50, -2.35],
-            [28.35, -2.15],
-            [28.45, -1.95],
             [28.60, -1.85],
-            [28.83, -1.86]
+            [28.72, -1.86],
+            [28.80, -1.90],
+            [28.88, -1.95],
+            [28.92, -2.02],
+            [28.90, -2.10],
+            [28.85, -2.16],
+            [28.78, -2.22],
+            [28.70, -2.26],
+            [28.62, -2.30],
+            [28.55, -2.34],
+            [28.48, -2.32],
+            [28.44, -2.25],
+            [28.42, -2.17],
+            [28.45, -2.09],
+            [28.50, -2.00],
+            [28.54, -1.92],
+            [28.60, -1.85]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Secteur de basse altitude (foret de plaine)",
+        "sector": "basse_altitude"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.48, -2.05],
+            [28.52, -2.02],
+            [28.50, -1.98],
+            [28.46, -1.95],
+            [28.40, -1.92],
+            [28.32, -1.90],
+            [28.22, -1.87],
+            [28.10, -1.84],
+            [28.00, -1.80],
+            [27.92, -1.74],
+            [27.90, -1.68],
+            [27.95, -1.62],
+            [28.04, -1.60],
+            [28.15, -1.62],
+            [28.26, -1.66],
+            [28.35, -1.71],
+            [28.42, -1.77],
+            [28.46, -1.85],
+            [28.48, -1.95],
+            [28.48, -2.05]
           ]
         ]
       }
