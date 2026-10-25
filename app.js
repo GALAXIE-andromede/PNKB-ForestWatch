@@ -142,7 +142,7 @@ function renderAlertsPanel() {
 
 /* ---------- Carte Leaflet ---------- */
 async function initMap() {
-    const map = L.map('map').setView(PNKB_CENTER, 10);
+    const map = L.map('map').setView(PNKB_CENTER, 9);
     window.mapInstance = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -150,14 +150,40 @@ async function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Limites officielles du parc (GeoJSON)
+    // Limites du parc (GeoJSON) — style bien visible
     try {
         const res = await fetch('data/pnkb_boundary.geojson');
         if (res.ok) {
             const geojson = await res.json();
-            L.geoJSON(geojson, {
-                style: { color: '#2e7d32', weight: 2, fillOpacity: 0.05 }
-            }).addTo(map).bindPopup('<b>Parc National de Kahuzi-Biega</b><br>Limites (approximatives, à remplacer par le fichier officiel ICCN)');
+            const parkLayer = L.geoJSON(geojson, {
+                style: {
+                    color: '#2e7d32',        // bordure vert foncé
+                    weight: 4,              // bordure épaisse
+                    opacity: 1,
+                    fillColor: '#4caf50',   // remplissage vert
+                    fillOpacity: 0.15       // remplissage visible
+                },
+                onEachFeature: (feature, layer) => {
+                    const name = feature.properties && feature.properties.name
+                        ? feature.properties.name
+                        : 'Parc National de Kahuzi-Biega';
+                    layer.bindPopup(
+                        `<b>🌳 ${name}</b><br>` +
+                        `Parc National de Kahuzi-Biega<br>` +
+                        `<small>Limites approximatives — le fichier officiel ICCN remplacera ce tracé.</small>`
+                    );
+                    // Étiquette permanente du secteur sur la carte
+                    layer.bindTooltip(name, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'park-label'
+                    });
+                }
+            }).addTo(map);
+            // Cadre automatique sur l'ensemble du parc (les 2 secteurs)
+            try {
+                map.fitBounds(parkLayer.getBounds(), { padding: [20, 20] });
+            } catch (e) { /* bornes indisponibles : on garde la vue par défaut */ }
         }
     } catch (e) {
         console.warn('GeoJSON des limites non chargé :', e);
