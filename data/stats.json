@@ -1,0 +1,10 @@
+{
+  "_note": "Fichier géré automatiquement par scripts/stats_history.py — ne pas modifier à la main.",
+  "first_scan_date": null,
+  "scans_total": 0,
+  "alerts_sent": 0,
+  "subscribers_peak": 0,
+  "current_subscribers": 0,
+  "loss_cumulative_ha": 0.0,
+  "monitored_area_ha": 600000
+}
