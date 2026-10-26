@@ -1,11 +1,11 @@
 // ⚠️ Fichier généré automatiquement par scripts/satellite_scan.py — ne pas modifier à la main.
-// Aucun scan exécuté pour le moment. Lancez le workflow « Analyse satellitaire PNKB » (onglet Actions).
+// Dernier scan : jamais (not_configured)
 const lastScan = {
-  "status": "pending",
+  "status": "not_configured",
   "date": "",
-  "total_loss_ha": 0,
+  "total_loss_ha": 0.0,
   "zone_count": 0,
-  "detail": "En attente du premier scan automatique (GitHub Actions)."
+  "detail": "Identifiants Copernicus manquants. Ajoutez les secrets GitHub : COPERNICUS_CLIENT_ID, COPERNICUS_CLIENT_SECRET"
 };
 
 const pnkbAlerts = [];
