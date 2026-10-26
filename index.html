@@ -3,118 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNKB Forest Watch</title>
-    <link rel="stylesheet" href="style.css">
+    <title>PNKB Forest Watch — Surveiller le cœur vert de la RDC</title>
+    <meta name="description" content="Surveillance satellitaire gratuite du Parc national de Kahuzi-Biega (RDC) : alertes Telegram à chaque détection de déforestation.">
+    <link rel="stylesheet" href="landing.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="data.js"></script>
-    <script src="data/alerts.js"></script>
 </head>
-<body>
-    <header>
-        <h1>PNKB Forest Watch</h1>
-        <p>Suivi forestier du Parc national de Kahuzi-Biega (Sud-Kivu, RDC)</p>
+<body class="landing-body">
+    <header class="landing-hero">
+        <div class="hero-content">
+            <p class="hero-badge">🌳 Parc National de Kahuzi-Biega · Sud-Kivu, RDC</p>
+            <h1>Surveiller le cœur vert<br>de la République Démocratique du Congo</h1>
+            <p class="hero-sub">Des satellites Sentinel-2 scrutent chaque semaine 600 000 hectares de forêt. À la moindre déforestation détectée, une alerte Telegram part automatiquement — gratuitement, pour tout le monde.</p>
+            <div class="hero-cta">
+                <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener" class="btn btn-primary">📲 Recevoir les alertes gratuitement</a>
+                <a href="dashboard.html" class="btn btn-secondary">Voir le dashboard complet →</a>
+            </div>
+        </div>
     </header>
 
-    <nav class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab(event, 'accueil')">Accueil</button>
-        <button class="tab-btn" onclick="switchTab(event, 'carte')">Carte</button>
-        <button class="tab-btn" onclick="switchTab(event, 'alertes')">Alertes</button>
-        <button class="tab-btn" onclick="switchTab(event, 'comparaison')">2015-2025</button>
-        <button class="tab-btn" onclick="switchTab(event, 'indicateurs')">Statistiques</button>
-        <button class="tab-btn" onclick="switchTab(event, 'sources')">Sources</button>
-    </nav>
+    <section class="landing-section problem">
+        <h2>⚠️ Le problème</h2>
+        <p>Le PNKB est l'une des dernières forêts primaires d'Afrique centrale, refuge du gorille de Grauer et de milliers d'espèces uniques. Mais la déforestation avance souvent en silence : les clairières illégales sont découvertes trop tard, quand les dégâts sont déjà immenses.</p>
+    </section>
 
-    <main>
-        <section id="accueil" class="tab-content active">
-            <div class="card demo-banner" id="scan-banner"></div>
-            <div class="card" id="impact-stats-card" style="display:none;">
-                <h2>🌟 Notre impact</h2>
-                <div id="impact-stats"></div>
+    <section class="landing-section solution">
+        <h2>🛰️ Notre solution : un œil dans le ciel, 100 % gratuit</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🛰️</div>
+                <h3>Scan hebdomadaire</h3>
+                <p>Chaque lundi, les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement pour détecter les pertes forestières.</p>
             </div>
-            <div class="card">
-                <h2>Bienvenue sur PNKB Forest Watch</h2>
-                <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
-                <p>Les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement chaque semaine : détection des pertes forestières, mise à jour de cette page et envoi d'alertes Telegram.</p>
-                <p style="margin-bottom:0;">
-                    <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
-                       style="color:#2aabee;font-weight:bold;text-decoration:none;">📲 Recevoir les alertes sur Telegram →</a>
-                </p>
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h3>Alertes instantanées</h3>
+                <p>Une perte forestière détectée ? Une alerte part sur Telegram pour tous les abonnés — riverains, ONG, gardes du parc, citoyens du monde.</p>
             </div>
-        </section>
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>Carte interactive</h3>
+                <p>Un dashboard public montre où les pertes ont été détectées, avec leur localisation et leur superficie estimée.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💯</div>
+                <h3>Toujours gratuit</h3>
+                <p>Imagerie publique, hébergement GitHub Pages, alertes Telegram : aucun frais, aucune donnée vendue, pour toujours.</p>
+            </div>
+        </div>
+    </section>
 
-        <section id="carte" class="tab-content">
-            <div class="card">
-                <h2>Carte Interactive & Limites</h2>
-                <div id="map"></div>
-                <div class="legend">
-                    <p><strong>Légende :</strong></p>
-                    <span class="legend-item"><i class="box green"></i> Limites du parc / couvert forestier stable</span>
-                    <span class="legend-item"><i class="box red"></i> Perte forestière détectée (élevée)</span>
-                    <span class="legend-item"><i class="box orange"></i> Perte forestière détectée (moyenne)</span>
-                </div>
-            </div>
-        </section>
+    <section class="landing-section impact">
+        <h2>🌟 Notre impact</h2>
+        <div class="impact-grid" id="landing-impact"></div>
+        <p class="impact-note" id="landing-impact-note"></p>
+    </section>
 
-        <section id="alertes" class="tab-content">
-            <div class="card" style="text-align:center;background:#e8f5e9;">
-                <h2 style="margin-top:0;">📲 Recevoir les alertes sur votre téléphone</h2>
-                <p style="font-size:14px;">Soyez prévenu dès qu'une perte forestière est détectée dans le parc — gratuitement, via Telegram.</p>
-                <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
-                   style="display:inline-block;background:#2aabee;color:#ffffff;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:16px;">
-                    📲 S'abonner sur Telegram
-                </a>
-                <p style="font-size:12px;color:#555;margin-top:12px;margin-bottom:0;">
-                    Ouvrez le lien puis appuyez sur « DÉMARRER » : votre inscription est automatique.<br>
-                    Vous recevrez une alerte à chaque détection (scan Sentinel-2 chaque lundi). Pour arrêter : bloquez simplement le bot.
-                </p>
-            </div>
-            <div class="card">
-                <h2>Alertes de déforestation</h2>
-                <div id="alerts-summary"></div>
-                <div id="alerts-list"></div>
-            </div>
-            <div class="card">
-                <h2>📜 Journal des alertes (historique)</h2>
-                <p style="font-size:13px;color:#555;">Historique des scans passés, accumulé semaine après semaine.</p>
-                <div id="alerts-history"></div>
-            </div>
-        </section>
+    <section class="landing-section cta-final">
+        <h2>📲 Rejoignez les sentinelles de la forêt</h2>
+        <p>Un seul geste suffit : ouvrir le bot Telegram et appuyer sur « DÉMARRER ». Vous serez prévenu dès la prochaine détection.</p>
+        <div class="hero-cta">
+            <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener" class="btn btn-primary">S'abonner sur Telegram</a>
+            <a href="dashboard.html" class="btn btn-secondary">Explorer le dashboard →</a>
+        </div>
+    </section>
 
-        <section id="comparaison" class="tab-content">
-            <div class="card">
-                <h2>Comparaison 2015 - 2025</h2>
-                <div class="comparison-container">
-                    <div class="comp-box"><h4>2015</h4><div class="mock-image">Imagerie référence 2015</div></div>
-                    <div class="comp-box"><h4>2025</h4><div class="mock-image">Imagerie référence 2025</div></div>
-                </div>
-            </div>
-        </section>
+    <footer class="landing-footer">
+        <p><strong>PNKB Forest Watch</strong> — projet citoyen de surveillance satellitaire du Parc national de Kahuzi-Biega.</p>
+        <p style="font-size:0.75rem;opacity:0.8;">Sources : Sentinel-2 (Copernicus/ESA) · OpenStreetMap · GitHub Pages. Données indicatives — à confirmer par vérification terrain (ICCN).</p>
+    </footer>
 
-        <section id="indicateurs" class="tab-content">
-            <div class="card">
-                <h2>Évolution Historique (10 ans)</h2>
-                <canvas id="forestChart"></canvas>
-                <button onclick="generateReport()" class="export-btn">📥 Exporter le rapport (PDF / Imprimer)</button>
-            </div>
-            <div class="card">
-                <h2>📊 Pertes détectées par scan</h2>
-                <p style="font-size:13px;color:#555;">Hectares de perte forestière estimés à chaque scan hebdomadaire Sentinel-2.</p>
-                <canvas id="historyChart"></canvas>
-            </div>
-        </section>
-
-        <section id="sources" class="tab-content">
-            <div class="card">
-                <h2>Sources</h2>
-                <p>Landsat (NASA/USGS), Sentinel-2 (Copernicus/ESA), Global Forest Watch (GFW).</p>
-            </div>
-        </section>
-    </main>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js"></script>
+    <script src="landing.js"></script>
 </body>
 </html>
