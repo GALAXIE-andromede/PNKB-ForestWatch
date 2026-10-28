@@ -8,14 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#059669">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black">
 
   <!-- NAVBAR -->
   <header class="fixed top-0 left-0 w-full z-50 bg-slate-950/85 backdrop-blur-md border-b border-emerald-900/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-emerald-500/20">
           <i class="fa-solid fa-tree"></i>
         </div>
@@ -26,10 +27,10 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-        <a href="#features" class="hover:text-emerald-400 transition">Fonctionnalités</a>
         <a href="#metrics" class="hover:text-emerald-400 transition">Impact</a>
-        <a href="#dashboard" class="hover:text-emerald-400 transition">Aperçu Carte</a>
+        <a href="#apercu" class="hover:text-emerald-400 transition">Aperçu Carte</a>
         <a href="#contact" class="hover:text-emerald-400 transition">Contacts</a>
+        <a href="dashboard.html" class="text-emerald-400 font-bold hover:underline transition">Console Live</a>
       </nav>
 
       <div class="flex items-center gap-3">
@@ -38,8 +39,8 @@
           <i class="fa-solid fa-phone text-emerald-400"></i>
           <span>Appeler</span>
         </a>
-        <!-- Entrer dans l'application -->
-        <a href="#dashboard" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-sm transition shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+        <!-- ENTRER DANS L'APPLICATION (LIEN CORRIGE VERS DASHBOARD.HTML) -->
+        <a href="dashboard.html" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-sm transition shadow-lg shadow-emerald-500/25 flex items-center gap-2">
           <span>Ouvrir l'application</span>
           <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
@@ -67,15 +68,15 @@
 
       <!-- BOUTONS D'ENTRÉE PRINCIPAUX -->
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <!-- Bouton pour franchir la landing page et accéder à l'app -->
-        <a href="#dashboard" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 text-base">
+        <!-- GROS BOUTON PRINCIPAL D'ACCES (CORRIGE VERS DASHBOARD.HTML) -->
+        <a href="dashboard.html" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 text-base">
           <i class="fa-solid fa-layer-group"></i>
-          Accéder à l'application & aux menus
+          <span>Accéder à l'application & aux cartes</span>
         </a>
         <!-- Contact WhatsApp direct -->
         <a href="https://wa.me/243850800833?text=Bonjour%20M.%20Paulin%20Bahati,%20je%20vous%20contacte%20à%20propos%20de%20PNKB%20Forestwatch." target="_blank" class="w-full sm:w-auto px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 rounded-xl transition flex items-center justify-center gap-2">
           <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i>
-          WhatsApp (+243 850 800 833)
+          <span>WhatsApp (+243 850 800 833)</span>
         </a>
       </div>
     </div>
@@ -106,7 +107,7 @@
   </section>
 
   <!-- APERÇU DE L'APPLICATION INTERNE / MENUS -->
-  <section id="dashboard" class="py-20 bg-slate-900/30">
+  <section id="apercu" class="py-20 bg-slate-900/30">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-10">
         <span class="text-emerald-400 text-xs font-bold tracking-widest uppercase">Espace Utilisateur & Écogardes</span>
@@ -116,42 +117,42 @@
 
       <!-- Cadre représentant l'application -->
       <div class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-2xl">
-        <!-- Barre de menus internes -->
+        <!-- Barre de menus internes (Chaque bouton ouvre directement dashboard.html) -->
         <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
             <span class="text-sm font-bold text-white">Secteur Tshivanga & Corridor écologique</span>
           </div>
-          <!-- Liens vers les menus internes -->
+          <!-- Liens vers dashboard.html -->
           <div class="flex flex-wrap items-center gap-2 text-xs">
-            <button class="px-3 py-1.5 bg-emerald-500 text-slate-950 font-bold rounded-md flex items-center gap-1.5">
+            <a href="dashboard.html" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-md flex items-center gap-1.5 transition">
               <i class="fa-solid fa-map"></i> Carte Satellite
-            </button>
-            <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md flex items-center gap-1.5">
+            </a>
+            <a href="dashboard.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md flex items-center gap-1.5 transition">
               <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Alertes RADD
-            </button>
-            <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md flex items-center gap-1.5">
-              <i class="fa-solid fa-person-walking text-emerald-400"></i> Patrouilles
-            </button>
+            </a>
+            <a href="dashboard.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-chart-pie text-emerald-400"></i> Statistiques
+            </a>
           </div>
         </div>
 
         <!-- Simulation visuelle du SIG -->
         <div class="mt-6 h-64 sm:h-80 bg-gradient-to-b from-slate-950 to-emerald-950/40 rounded-xl border border-slate-800 flex flex-col items-center justify-center text-center p-6">
           <i class="fa-solid fa-satellite text-4xl text-emerald-400 mb-3"></i>
-          <h3 class="text-lg font-bold text-white">Interface Cartographique Active</h3>
+          <h3 class="text-lg font-bold text-white">Interface Cartographique & Données Satellites</h3>
           <p class="text-xs text-slate-400 max-w-md mt-1 mb-5">
-            Surveillance haute résolution opérationnelle sur l'ensemble du massif de Kahuzi-Biega.
+            Surveillance haute résolution opérationnelle sur l'ensemble du massif de Kahuzi-Biega avec Copernicus Sentinel-2.
           </p>
-          <a href="#contact" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs uppercase tracking-wider transition">
-            Signaler une anomalie GPS
+          <a href="dashboard.html" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/20">
+            Lancer la console complète →
           </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SECTION CONTACT (avec les numéros mis à jour) -->
+  <!-- SECTION CONTACT (avec les numéros officiels) -->
   <section id="contact" class="py-20 bg-slate-950 border-t border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-2xl mx-auto mb-14">
@@ -162,10 +163,10 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         
         <!-- Bloc Informations coordonnées -->
-        <div class="lg:col-span-5 bg-slate-900/90 p-8 rounded-2xl border border-slate-800 space-y-6">
+        <div class="lg:col-span-5 bg-slate-900/90 p-8 rounded-2xl border border-slate-800 space-y-6 shadow-xl">
           <h3 class="text-xl font-bold text-white mb-2">Contacts directs</h3>
           
-          <!-- Téléphone direct d'appel (NOUVEAU NUMÉRO) -->
+          <!-- Téléphone direct d'appel -->
           <div class="flex items-start gap-4">
             <div class="w-11 h-11 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center shrink-0 border border-emerald-500/20">
               <i class="fa-solid fa-phone text-lg"></i>
@@ -203,6 +204,7 @@
               <a href="mailto:paulinbahati44@gmail.com" class="text-emerald-400 hover:text-emerald-300 font-medium break-all transition">
                 paulinbahati44@gmail.com
               </a>
+              <span class="block text-[11px] text-slate-400 mt-0.5">Paulin Bahati</span>
             </div>
           </div>
 
@@ -220,7 +222,7 @@
         </div>
 
         <!-- Formulaire de contact -->
-        <div class="lg:col-span-7 bg-slate-900/90 p-8 rounded-2xl border border-slate-800">
+        <div class="lg:col-span-7 bg-slate-900/90 p-8 rounded-2xl border border-slate-800 shadow-xl">
           <h3 class="text-xl font-bold text-white mb-6">Formulaire de transmission</h3>
           <form class="space-y-4" onsubmit="event.preventDefault(); alert('Votre signalement a été transmis avec succès à Paulin Bahati.');">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -257,7 +259,7 @@
   <!-- FOOTER -->
   <footer class="py-8 bg-slate-950 border-t border-slate-850 text-slate-500 text-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p>© 2026 PNKB Forestwatch — Préservation du Parc National de Kahuzi-Biega (RDC).</p>
+      <p>© PNKB Forestwatch — Préservation du Parc National de Kahuzi-Biega (RDC).</p>
       <div class="flex items-center gap-6">
         <a href="tel:+243972731872" class="hover:text-emerald-400 transition">Appel : +243 972 731 872</a>
         <a href="https://wa.me/243850800833" target="_blank" class="hover:text-emerald-400 transition">WhatsApp : +243 850 800 833</a>
