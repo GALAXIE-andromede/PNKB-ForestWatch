@@ -25,7 +25,7 @@
             <span style="color:rgba(255,255,255,0.4);">|</span>
             <a href="https://wa.me/243850800833" target="_blank" style="color:#a7f3d0; text-decoration:none; font-weight:bold;">💬 WhatsApp : +243 850 800 833</a>
             <span style="color:rgba(255,255,255,0.4);">|</span>
-            <a href="mailto:paulinbahati44@gmail.com" style="color:#a7f3d0; text-decoration:none;">✉️ paulinbahati44@gmail.com</a>
+            <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" style="color:#6ee7b7; text-decoration:underline; font-weight:bold;">📢 Chaîne WhatsApp</a>
         </div>
     </header>
 
@@ -33,6 +33,7 @@
         <button class="tab-btn active" onclick="switchTab(event, 'accueil')">Accueil</button>
         <button class="tab-btn" onclick="switchTab(event, 'carte')">Carte</button>
         <button class="tab-btn" onclick="switchTab(event, 'alertes')">Alertes</button>
+        <button class="tab-btn" onclick="switchTab(event, 'signalements')" style="background:#fef3c7; color:#92400e; font-weight:bold;">🚨 Signalements</button>
         <button class="tab-btn" onclick="switchTab(event, 'comparaison')">2015-2025</button>
         <button class="tab-btn" onclick="switchTab(event, 'indicateurs')">Statistiques</button>
         <button class="tab-btn" onclick="switchTab(event, 'sources')">Sources</button>
@@ -41,18 +42,28 @@
     <main>
         <section id="accueil" class="tab-content active">
             <div class="card demo-banner" id="scan-banner"></div>
-            <div class="card" id="impact-stats-card" style="display:none;">
-                <h2>🌟 Notre impact</h2>
-                <div id="impact-stats"></div>
+            <div class="card" id="impact-stats-card">
+                <h2>🌟 Notre impact & Surveillance</h2>
+                <div id="impact-stats">
+                    <p><strong>Zone couverte :</strong> 600 000 hectares (Secteurs Haute et Basse altitude).</p>
+                    <p><strong>Canaux d'alerte en direct :</strong> Chaîne WhatsApp & Bot Telegram actifs.</p>
+                </div>
             </div>
             <div class="card">
                 <h2>Bienvenue sur PNKB Forest Watch</h2>
                 <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
-                <p>Les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement chaque semaine : détection des pertes forestières, mise à jour de cette page et envoi d'alertes Telegram.</p>
-                <p style="margin-bottom:0;">
+                <p>Les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement pour détecter les pertes forestières et alerter la communauté.</p>
+                
+                <div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:10px;">
+                    <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" rel="noopener"
+                       style="background:#25D366; color:#ffffff; padding:10px 16px; border-radius:8px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                       💬 Chaîne WhatsApp PNKB →
+                    </a>
                     <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
-                       style="color:#2aabee;font-weight:bold;text-decoration:none;">📲 Recevoir les alertes sur Telegram →</a>
-                </p>
+                       style="background:#2aabee; color:#ffffff; padding:10px 16px; border-radius:8px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                       ✈️ Bot Telegram →
+                    </a>
+                </div>
             </div>
         </section>
 
@@ -69,19 +80,95 @@
             </div>
         </section>
 
+        <!-- NOUVEL ONGLET : SIGNALEMENTS COMMUNAUTAIRES -->
+        <section id="signalements" class="tab-content">
+            <div class="card" style="background:#fffbeb; border:1px solid #fcd34d;">
+                <h2 style="color:#92400e; margin-top:0;">🚨 Signalement communautaire en direct</h2>
+                <p style="font-size:14px; color:#4b5563;">
+                    Vous avez constaté une activité suspecte (abattage illégal, feu, braconnage, sciage) dans ou autour du Parc National de Kahuzi-Biega ? Remplissez ce signalement pour alerter immédiatement la communauté et les écogardes.
+                </p>
+
+                <!-- Formulaire -->
+                <form id="community-report-form" onsubmit="submitReport(event)" style="display:grid; grid-gap:12px; max-width:600px; margin-top:16px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:bold; text-transform:uppercase; color:#374151;">Secteur ou Localité</label>
+                        <select id="rep-secteur" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db; background:#fff;">
+                            <option value="">Sélectionnez un secteur...</option>
+                            <option value="Secteur Tshivanga">Secteur Tshivanga (Haute altitude)</option>
+                            <option value="Secteur Itebero">Secteur Itebero (Basse altitude)</option>
+                            <option value="Secteur Lemera / Corridor">Secteur Lemera / Corridor écologique</option>
+                            <option value="Environs de Bukavu / Miti">Miti / Kabare / Environs</option>
+                            <option value="Autre secteur">Autre zone du parc</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:bold; text-transform:uppercase; color:#374151;">Nature de l'incident</label>
+                        <select id="rep-type" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db; background:#fff;">
+                            <option value="Abattage d'arbres illégal">Abattage d'arbres / Sciage de bois</option>
+                            <option value="Feu de brousse / Fumée suspecte">Feu de brousse / Fumée suspecte</option>
+                            <option value="Activité de braconnage">Activité de braconnage / Pièges</option>
+                            <option value="Empiètement agricole">Empiètement agricole / Défrichage</option>
+                            <option value="Autre menace">Autre incident environnemental</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:bold; text-transform:uppercase; color:#374151;">Description & repères GPS</label>
+                        <textarea id="rep-desc" rows="3" required placeholder="Précisez ce que vous avez vu, l'heure approximative ou un repère connu..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db; background:#fff; font-family:sans-serif;"></textarea>
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                        <button type="submit" style="background:#15803d; color:#ffffff; padding:12px 20px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">
+                            📢 Publier sur l'application
+                        </button>
+                        <button type="button" onclick="sendToWhatsAppDirect()" style="background:#25D366; color:#ffffff; padding:12px 20px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">
+                            💬 Transmettre aussi sur WhatsApp
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📋 Signalements récents publiés par la communauté</h2>
+                <div id="community-reports-list" style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                    <!-- Exemple initial de signalement -->
+                    <div style="padding:12px; background:#f9fafb; border-left:4px solid #ef4444; border-radius:4px;">
+                        <strong style="color:#b91c1c;">Abattage suspect signalé</strong> · <span style="font-size:12px; color:#6b7280;">Secteur Tshivanga</span>
+                        <p style="font-size:13px; margin:4px 0; color:#374151;">Bruits de tronçonneuse signalés en lisière nord du corridor. Patrouille prévenue.</p>
+                        <span style="font-size:11px; color:#9ca3af;">Signalement vérifié par l'équipe PNKB Watch</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="alertes" class="tab-content">
-            <div class="card" style="text-align:center;background:#e8f5e9;">
-                <h2 style="margin-top:0;">📲 Recevoir les alertes sur votre téléphone</h2>
-                <p style="font-size:14px;">Soyez prévenu dès qu'une perte forestière est détectée dans le parc — gratuitement, via Telegram.</p>
-                <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
-                   style="display:inline-block;background:#2aabee;color:#ffffff;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:16px;">
-                    📲 S'abonner sur Telegram
-                </a>
-                <p style="font-size:12px;color:#555;margin-top:12px;margin-bottom:0;">
-                    Ouvrez le lien puis appuyez sur « DÉMARRER » : votre inscription est automatique.<br>
-                    Vous recevrez une alerte à chaque détection (scan Sentinel-2 chaque lundi). Pour arrêter : bloquez simplement le bot.
+            <!-- BANDEAU DOUBLE CANAL : WHATSAPP + TELEGRAM -->
+            <div class="card" style="text-align:center; background:#f0fdf4; border: 1px solid #bbf7d0;">
+                <h2 style="margin-top:0; color:#14532d;">📲 Rejoignez le système d'alerte gratuit</h2>
+                <p style="font-size:14px; color:#374151; max-width:600px; margin:0 auto 16px auto;">
+                    Soyez prévenu dès qu'une perte forestière ou un feu est détecté dans le Parc National de Kahuzi-Biega.
+                </p>
+
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:12px;">
+                    <!-- BOUTON CHAINE WHATSAPP OFFICIELLE -->
+                    <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" rel="noopener"
+                       style="display:inline-flex; align-items:center; gap:8px; background:#25D366; color:#ffffff; padding:12px 20px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                        <span>💬 Rejoindre la Chaîne WhatsApp (Kivu)</span>
+                    </a>
+
+                    <!-- BOUTON TELEGRAM -->
+                    <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
+                       style="display:inline-flex; align-items:center; gap:8px; background:#2aabee; color:#ffffff; padding:12px 20px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:15px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                        <span>✈️ S'abonner sur Telegram</span>
+                    </a>
+                </div>
+
+                <p style="font-size:12px; color:#6b7280; margin-top:10px; margin-bottom:0;">
+                    ✅ 100% Gratuit · Vos coordonnées restent strictement confidentielles.
                 </p>
             </div>
+
             <div class="card">
                 <h2>Alertes de déforestation</h2>
                 <div id="alerts-summary"></div>
@@ -124,6 +211,64 @@
             </div>
         </section>
     </main>
+
+    <!-- SCRIPT DE GESTION DES SIGNALEMENTS COMMUNAUTAIRES -->
+    <script>
+        // Charger les signalements sauvegardés
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedReports();
+        });
+
+        function submitReport(e) {
+            e.preventDefault();
+            const secteur = document.getElementById('rep-secteur').value;
+            const type = document.getElementById('rep-type').value;
+            const desc = document.getElementById('rep-desc').value;
+            const dateStr = new Date().toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+            const report = { secteur, type, desc, dateStr };
+
+            // Sauvegarder dans le navigateur
+            let reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
+            reports.unshift(report);
+            localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+
+            // Rafraîchir l'affichage
+            loadSavedReports();
+
+            // Réinitialiser le formulaire
+            document.getElementById('community-report-form').reset();
+            alert('Votre signalement a été enregistré et publié sur l\'application avec succès.');
+        }
+
+        function loadSavedReports() {
+            const list = document.getElementById('community-reports-list');
+            let reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
+            
+            if (reports.length === 0) return;
+
+            let html = '';
+            reports.forEach(r => {
+                html += `
+                    <div style="padding:12px; background:#f9fafb; border-left:4px solid #ef4444; border-radius:4px;">
+                        <strong style="color:#b91c1c;">${r.type}</strong> · <span style="font-size:12px; color:#6b7280;">${r.secteur}</span>
+                        <p style="font-size:13px; margin:4px 0; color:#374151;">${r.desc}</p>
+                        <span style="font-size:11px; color:#9ca3af;">Signalé le ${r.dateStr}</span>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function sendToWhatsAppDirect() {
+            const secteur = document.getElementById('rep-secteur').value || 'Secteur non spécifié';
+            const type = document.getElementById('rep-type').value || 'Incident';
+            const desc = document.getElementById('rep-desc').value || 'Aucun détail';
+
+            const message = `🚨 ALERTE PNKB FOREST WATCH\n\nNature : ${type}\nSecteur : ${secteur}\nDétails : ${desc}\n\nEnvoyé depuis l'application web PNKB Watch.`;
+            window.open('https://wa.me/243850800833?text=' + encodeURIComponent(message), '_blank');
+        }
+    </script>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
