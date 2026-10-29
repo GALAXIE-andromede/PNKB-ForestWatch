@@ -1,178 +1,135 @@
-<!-- ONGLET 4 : VITRINE ÉDUCATIVE ET SCIENTIFIQUE DU PNKB (Conforme ICCN / WCS / UICN) -->
-        <section id="decouvrir" class="tab-content">
-            
-            <!-- EN-TÊTE ACADÉMIQUE -->
-            <div class="card" style="background:#f8fafc; border:1px solid #cbd5e1;">
-                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
-                    <span class="bio-badge">Patrimoine Mondial UNESCO (1980)</span>
-                    <span class="bio-badge">Site Ramsar / Tourbières d'Altitude</span>
-                    <span class="bio-badge">Zone Clé de Biodiversité (KBA)</span>
-                    <span class="bio-badge">Classification UICN : Catégorie II (Parc National)</span>
-                </div>
-                
-                <h2 style="margin:6px 0 10px 0; color:#0369a1; font-size:22px;">
-                    Monographie Scientifique : Parc National de Kahuzi-Biega (PNKB)
-                </h2>
-                <p style="font-size:13px; line-height:1.6; color:#334155;">
-                    Cette section regroupe les données biogéographiques, écologiques et taxonomiques officielles conformes au <strong>Plan d'Aménagement et de Gestion (PAG)</strong> de l'<strong>Institut Congolais pour la Conservation de la Nature (ICCN)</strong>, aux rapports de la <strong>Wildlife Conservation Society (WCS)</strong> et aux évaluations de l'<strong>UICN</strong>. Elle est mise à la disposition des étudiants, chercheurs et écologues travaillant sur la conservation du Rift Albertin.
-                </p>
-            </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNKB Forest Watch — Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data.js"></script>
+    <script src="data/alerts.js"></script>
+</head>
+<body>
+    <header>
+        <h1>PNKB Forest Watch</h1>
+        <p>Suivi forestier du Parc national de Kahuzi-Biega (Sud-Kivu, RDC)</p>
+        <p style="margin-top:6px;margin-bottom:0;">
+            <a href="index.html" style="color:#ffffff;font-weight:bold;text-decoration:underline;">← Retour à la page d'accueil</a>
+        </p>
+    </header>
 
-            <!-- GALERIE D'IMAGES DU GORILLE DE GRAUER & PAYSAGES (Licences Libres Creative Commons) -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'accueil')">Accueil</button>
+        <button class="tab-btn" onclick="switchTab(event, 'carte')">Carte</button>
+        <button class="tab-btn" onclick="switchTab(event, 'alertes')">Alertes</button>
+        <button class="tab-btn" onclick="switchTab(event, 'comparaison')">2015-2025</button>
+        <button class="tab-btn" onclick="switchTab(event, 'indicateurs')">Statistiques</button>
+        <button class="tab-btn" onclick="switchTab(event, 'sources')">Sources</button>
+    </nav>
+
+    <main>
+        <section id="accueil" class="tab-content active">
+            <div class="card demo-banner" id="scan-banner"></div>
+            <div class="card" id="impact-stats-card" style="display:none;">
+                <h2>🌟 Notre impact</h2>
+                <div id="impact-stats"></div>
+            </div>
             <div class="card">
-                <h3 style="margin-top:0; color:#0f172a; font-size:17px;">
-                    📸 Galerie Faunologique Officielle (Images sous licence libre Creative Commons)
-                </h3>
+                <h2>Bienvenue sur PNKB Forest Watch</h2>
+                <p>Application de suivi du couvert forestier pour le Parc national de Kahuzi-Biega (utilisable sur Android et ordinateur).</p>
+                <p>Les images Sentinel-2 (Copernicus/ESA) sont analysées automatiquement chaque semaine : détection des pertes forestières, mise à jour de cette page et envoi d'alertes Telegram.</p>
                 
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:14px;">
-                    
-                    <!-- Photo 1 : Dos Argenté Chimanuka -->
-                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Eastern_lowland_gorilla.jpg/640px-Eastern_lowland_gorilla.jpg" 
-                             alt="Gorille de Grauer dos argenté Chimanuka PNKB" 
-                             style="width:100%; height:220px; object-fit:cover; display:block;">
-                        <div style="padding:10px;">
-                            <strong style="color:#0f172a; font-size:13px; display:block;">Le Dos Argenté <em>Chimanuka</em> (PNKB)</strong>
-                            <p style="font-size:12px; color:#64748b; margin:4px 0;">Mâle dominant emblématique du secteur de haute altitude (Tshivanga). Les mâles adultes peuvent peser plus de 210 kg.</p>
-                            <span style="font-size:10px; color:#94a3b8;">© Eyrewood Studios / Flickr / Wikimedia Commons (CC BY 2.0)</span>
-                        </div>
-                    </div>
-
-                    <!-- Photo 2 : Jeune Gorillon du groupe Chimanuka -->
-                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Eastern_Lowland_Gorilla_Infant_in_Kahuzi_Biega_National_Park.jpg/640px-Eastern_Lowland_Gorilla_Infant_in_Kahuzi_Biega_National_Park.jpg" 
-                             alt="Jeune gorillon de Grauer dans le Parc National de Kahuzi-Biega" 
-                             style="width:100%; height:220px; object-fit:cover; display:block;">
-                        <div style="padding:10px;">
-                            <strong style="color:#0f172a; font-size:13px; display:block;">Nourrisson du Groupe <em>Chimanuka</em> (Tshivanga)</strong>
-                            <p style="font-size:12px; color:#64748b; margin:4px 0;">Le taux de reproduction et la survie des jeunes en sous-bois montagnard constituent l'indicateur démographique clé du suivi écologique ICCN.</p>
-                            <span style="font-size:10px; color:#94a3b8;">© Joe McKenna / Wikimedia Commons (CC BY 2.0)</span>
-                        </div>
-                    </div>
-
-                    <!-- Photo 3 : Carte de Distribution et Écologie -->
-                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Gorilla_beringei_graueri_distribution.svg/640px-Gorilla_beringei_graueri_distribution.svg.png" 
-                             alt="Aire de répartition Gorilla beringei graueri RDC" 
-                             style="width:100%; height:220px; object-fit:contain; background:#f1f5f9; display:block;">
-                        <div style="padding:10px;">
-                            <strong style="color:#0f172a; font-size:13px; display:block;">Aire de Répartition Endémique (RDC)</strong>
-                            <p style="font-size:12px; color:#64748b; margin:4px 0;">Distribution fragmentée à l'est du fleuve Lualaba et à l'ouest du Rift Albertin (paysages PNKB, Maiko, réserve d'Itombwe).</p>
-                            <span style="font-size:10px; color:#94a3b8;">Données spatiales UICN / Wikimedia Commons (CC BY-SA)</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- FICHE TAXONOMIQUE & STATUT ÉCOLOGIQUE -->
-            <div class="card" style="background:#f0fdf4; border:1px solid #bbf7d0;">
-                <h3 style="margin-top:0; color:#14532d; font-size:17px;">
-                    🦍 Fiche d'Identité Taxonomique : Le Gorille de Grauer
-                </h3>
-                
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; font-size:12px; margin-top:10px;">
-                    <div style="background:#ffffff; padding:10px; border-radius:8px; border:1px solid #dcfce7;">
-                        <strong>Nom Scientifique :</strong><br>
-                        <em>Gorilla beringei graueri</em> (Matschie, 1914)
-                    </div>
-                    <div style="background:#ffffff; padding:10px; border-radius:8px; border:1px solid #dcfce7;">
-                        <strong>Statut Liste Rouge UICN :</strong><br>
-                        <span style="color:#b91c1c; font-weight:bold;">En Danger Critique d'Extinction (CR)</span>
-                    </div>
-                    <div style="background:#ffffff; padding:10px; border-radius:8px; border:1px solid #dcfce7;">
-                        <strong>Statut CITES :</strong><br>
-                        Annexe I (Commerce international strictement prohibé)
-                    </div>
-                    <div style="background:#ffffff; padding:10px; border-radius:8px; border:1px solid #dcfce7;">
-                        <strong>Population Mondiale :</strong><br>
-                        Estimée entre ~3 800 et 6 800 individus (WCS/ICCN)
-                    </div>
-                </div>
-
-                <div style="margin-top:14px; font-size:13px; line-height:1.6; color:#166534;">
-                    <p style="margin:0;">
-                        <strong>Particularités Éco-éthologiques :</strong> Le gorille de Grauer est le plus grand primate vivant sur Terre. Les mâles adultes présentent une crête sagittale prononcée, une envergure de bras dépassant 2,3 mètres et développent un pelage argenté au dos vers l'âge de 12 ans (dos argenté). Son régime alimentaire est folivore et frugivore : dans le PNKB, il consomme plus de 100 espèces végétales, notamment les tiges de <em>Laportea</em>, les pousses de bambous (<em>Yushania alpina</em>), les écorces et les fruits sauvages (<em>Ficus</em>, <em>Chrysophyllum</em>).
-                    </p>
-                </div>
-            </div>
-
-            <!-- LE GRADIENT ALTITUDINAL & ZONATION FLORISTIQUE -->
-            <div class="card">
-                <h3 style="margin-top:0; color:#0f172a; font-size:17px;">
-                    🌿 Gradient Altitudinal et Cortèges Floristiques (Du Bassin du Congo au Sommet Kahuzi)
-                </h3>
-                <p style="font-size:13px; color:#475569;">
-                    Le PNKB est l'un des rares sites au monde préservant une continuité écologique continue sur plus de <strong>2 700 mètres de dénivelé</strong> (de 600 m à 3 308 m d'altitude). Cette zonation conditionne directement la répartition de la faune :
+                <p style="margin-top:12px;margin-bottom:6px;">
+                    <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" rel="noopener"
+                       style="color:#25D366;font-weight:bold;text-decoration:none;">💬 Rejoindre la Chaîne WhatsApp d'alertes →</a>
                 </p>
-
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px; font-size:13px;">
-                    
-                    <!-- Étage 1 -->
-                    <div style="border-left:4px solid #15803d; background:#f8fafc; padding:12px; border-radius:0 8px 8px 0;">
-                        <strong style="color:#15803d;">1. Étage Afro-Subalpin et Tourbières (2 600 m – 3 308 m)</strong>
-                        <p style="margin:4px 0; color:#334155;">
-                            Présent sur les sommets du <strong>Mont Kahuzi (3 308 m)</strong> et du <strong>Mont Biega (2 790 m)</strong>. Végétation rabougrie à bruyères géantes arborescentes (<em>Erica arborea</em>, <em>Erica trimera</em>), immortelles (<em>Helichrysum</em>) et tourbières d'altitude (marais de Musisi et Tshivanga).<br>
-                            <em>Espèce repère :</em> <strong>Dendromus kahuziensis</strong> (rongeur arboricole endémique strict mondial de ces tourbières).
-                        </p>
-                    </div>
-
-                    <!-- Étage 2 -->
-                    <div style="border-left:4px solid #16a34a; background:#f8fafc; padding:12px; border-radius:0 8px 8px 0;">
-                        <strong style="color:#16a34a;">2. Étage des Bambouseraies Pures (2 200 m – 2 600 m)</strong>
-                        <p style="margin:4px 0; color:#334155;">
-                            Peuplements monospécifiques de bambous de montagne (<em>Yushania alpina</em>, syn. <em>Arundinaria alpina</em>). Cet étage joue un rôle biologique capital au début de la saison des pluies (septembre-novembre), période où les familles de gorilles montent consommer massivement les jeunes pousses tendres et riches en sève.
-                        </p>
-                    </div>
-
-                    <!-- Étage 3 -->
-                    <div style="border-left:4px solid #0284c7; background:#f8fafc; padding:12px; border-radius:0 8px 8px 0;">
-                        <strong style="color:#0284c7;">3. Étage Afro-Montagnard de Haute Altitude (1 800 m – 2 200 m)</strong>
-                        <p style="margin:4px 0; color:#334155;">
-                            Secteur Tshivanga. Forêt dense humide de montagne couverte d'épiphytes, lichens et fougères arborescentes (<em>Cyathea manniana</em>). Arbres dominants : <em>Carapa grandiflora</em>, <em>Newtonia buchananii</em>, <em>Strombosia scheffleri</em>, <em>Podocarpus latifolius</em>. Habitat permanent des familles habituées au suivi scientifique.
-                        </p>
-                    </div>
-
-                    <!-- Étage 4 -->
-                    <div style="border-left:4px solid #0369a1; background:#f8fafc; padding:12px; border-radius:0 8px 8px 0;">
-                        <strong style="color:#0369a1;">4. Forêt Équatoriale de Transition et Basse Altitude (600 m – 1 500 m)</strong>
-                        <p style="margin:4px 0; color:#334155;">
-                            Représente 90 % de la superficie du parc (secteurs d'Itebero, Lulingu, Nzovu). Forêt tropicale guinéo-congolaise sempervirente à <em>Gilbertiodendron dewevrei</em> (Limbali) et <em>Michelsonia microphylla</em>. Abrite les populations les plus nombreuses de gorilles non habitués, les chimpanzés orientaux (<em>Pan trogodytes schweinfurthii</em>) et les éléphants de forêt (<em>Loxodonta cyclotis</em>).
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- PROBLÉMATIQUE DU CORRIDOR DE LEMERA & MENACES IDENTIFIÉES -->
-            <div class="card" style="background:#fff1f2; border:1px solid #fecdd3;">
-                <h3 style="margin-top:0; color:#9f1239; font-size:17px;">
-                    ⚠️ La Problématique Spatiale du Corridor de Lemera & Menaces (Données ICCN)
-                </h3>
-                <p style="font-size:13px; line-height:1.6; color:#4c0519;">
-                    Le PNKB est géographiquement divisé en deux blocs asymétriques : la <strong>Haute Altitude (60 000 ha)</strong> et la <strong>Basse Altitude (540 000 ha)</strong>. Ces deux entités ne sont connectées que par un étroit <strong>corridor écologique de transition (colline de Lemera)</strong> d'à peine 1 à 2 kilomètres de large à certains étranglements.
+                <p style="margin-bottom:0;">
+                    <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
+                       style="color:#2aabee;font-weight:bold;text-decoration:none;">📲 Recevoir les alertes sur Telegram →</a>
                 </p>
-                <div style="background:#ffffff; border-radius:8px; padding:12px; font-size:12px; color:#334155; margin-top:8px;">
-                    <strong>Menaces critiques suivies par la télédétection PNKB Forest Watch :</strong>
-                    <ul style="margin:6px 0 0 0; padding-left:20px; line-height:1.6;">
-                        <li><strong>Fragmentation du corridor :</strong> Empiètement agricole et installations humaines coupant les échanges génétiques des grands singes.</li>
-                        <li><strong>Carbonisation illicite (Makala) :</strong> Exploitation des arbres à haute densité énergétique en lisière est.</li>
-                        <li><strong>Exploitation minière artisanale illicite :</strong> Présence de puits clandestins d'extraction de coltan, cassitérite et or dans les vallées de basse altitude.</li>
-                        <li><strong>Braconnage commercial de subsistance :</strong> Piégeage au collet métallique blessant fréquemment gorilles et primates.</li>
-                    </ul>
-                </div>
             </div>
-
-            <!-- RÉFÉRENCES BIBLIOGRAPHIQUES POUR CHERCHEURS ET ÉTUDIANTS -->
-            <div class="card" style="background:#f8fafc; font-size:12px; color:#475569;">
-                <h4 style="margin:0 0 8px 0; color:#0f172a; font-size:14px;">📚 Bibliographie Scientifique de Référence pour Mémoires & Thèses :</h4>
-                <ol style="margin:0; padding-left:18px; line-height:1.6;">
-                    <li><strong>Plumptre, A. J., et al. (2016).</strong> <em>Catastrophic decline of world's largest primate: 87% loss of Grauer's gorilla (Gorilla beringei graueri) population in 20 years.</em> PLoS ONE, 11(10).</li>
-                    <li><strong>Hall, J. S., Saltonstall, K., et al. (1998).</strong> <em>Survey of Grauer's gorillas (Gorilla beringei graueri) and eastern chimpanzees (Pan trogodytes schweinfurthii) in the Kahuzi-Biega National Park lowland sector.</em> African Journal of Ecology.</li>
-                    <li><strong>ICCN (2020).</strong> <em>Plan d'Aménagement et de Gestion (PAG) du Parc National de Kahuzi-Biega.</em> Ministère de l'Environnement et Développement Durable, RDC.</li>
-                    <li><strong>Yamagiwa, J., et al. (2005).</strong> <em>Long-term research on Grauer's gorillas in Kahuzi-Biega National Park: life history, social dynamics, and conservation status.</em> Primates Journal.</li>
-                    <li><strong>UNESCO World Heritage Centre.</strong> <em>State of Conservation of Kahuzi-Biega National Park (Democratic Republic of the Congo).</em> Décision 44 COM 7A.</li>
-                </ol>
-            </div>
-
         </section>
+
+        <section id="carte" class="tab-content">
+            <div class="card">
+                <h2>Carte Interactive & Limites</h2>
+                <div id="map"></div>
+                <div class="legend">
+                    <p><strong>Légende :</strong></p>
+                    <span class="legend-item"><i class="box green"></i> Limites du parc / couvert forestier stable</span>
+                    <span class="legend-item"><i class="box red"></i> Perte forestière détectée (élevée)</span>
+                    <span class="legend-item"><i class="box orange"></i> Perte forestière détectée (moyenne)</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="alertes" class="tab-content">
+            <div class="card" style="text-align:center;background:#e8f5e9;">
+                <h2 style="margin-top:0;">📲 Recevoir les alertes sur votre téléphone</h2>
+                <p style="font-size:14px;">Soyez prévenu dès qu'une perte forestière est détectée dans le parc — gratuitement.</p>
+                
+                <div style="display:flex; flex-direction:column; gap:10px; align-items:center; margin-top:12px;">
+                    <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" rel="noopener"
+                       style="display:inline-block;background:#25D366;color:#ffffff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;">
+                        💬 S'abonner sur la Chaîne WhatsApp
+                    </a>
+                    <a href="https://t.me/pnkb_forestwatch_alert_bot" target="_blank" rel="noopener"
+                       style="display:inline-block;background:#2aabee;color:#ffffff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;">
+                        📲 S'abonner sur Telegram
+                    </a>
+                </div>
+
+                <p style="font-size:12px;color:#555;margin-top:12px;margin-bottom:0;">
+                    Alertes automatiques chaque lundi après le scan Sentinel-2.
+                </p>
+            </div>
+            <div class="card">
+                <h2>Alertes de déforestation</h2>
+                <div id="alerts-summary"></div>
+                <div id="alerts-list"></div>
+            </div>
+            <div class="card">
+                <h2>📜 Journal des alertes (historique)</h2>
+                <p style="font-size:13px;color:#555;">Historique des scans passés, accumulé semaine après semaine.</p>
+                <div id="alerts-history"></div>
+            </div>
+        </section>
+
+        <section id="comparaison" class="tab-content">
+            <div class="card">
+                <h2>Comparaison 2015 - 2025</h2>
+                <div class="comparison-container">
+                    <div class="comp-box"><h4>2015</h4><div class="mock-image">Imagerie référence 2015</div></div>
+                    <div class="comp-box"><h4>2025</h4><div class="mock-image">Imagerie référence 2025</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="indicateurs" class="tab-content">
+            <div class="card">
+                <h2>Évolution Historique (10 ans)</h2>
+                <canvas id="forestChart"></canvas>
+                <button onclick="generateReport()" class="export-btn">📥 Exporter le rapport (PDF / Imprimer)</button>
+            </div>
+            <div class="card">
+                <h2>📊 Pertes détectées par scan</h2>
+                <p style="font-size:13px;color:#555;">Hectares de perte forestière estimés à chaque scan hebdomadaire Sentinel-2.</p>
+                <canvas id="historyChart"></canvas>
+            </div>
+        </section>
+
+        <section id="sources" class="tab-content">
+            <div class="card">
+                <h2>Sources</h2>
+                <p>Landsat (NASA/USGS), Sentinel-2 (Copernicus/ESA), Global Forest Watch (GFW).</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
