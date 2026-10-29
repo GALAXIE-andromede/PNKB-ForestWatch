@@ -1,14 +1,14 @@
 """
 Scan satellitaire hebdomadaire du Parc National de Kahuzi-Biega.
-100% gratuit : Copernicus Dataspace (Sentinel-2) + alertes Telegram.
+100% gratuit : Copernicus Dataspace (Sentinel-2) + alertes Telegram & Chaîne WhatsApp.
 Exécuté automatiquement par GitHub Actions (voir .github/workflows/).
 
 Étapes :
 1. Authentification auprès de Copernicus Dataspace (identifiants gratuits)
 2. Téléchargement de 2 images NDVI Sentinel-2 (référence / période récente)
-3. Détection des pixels de perte forestière
+3. Détection des pixels de perte forestière (seuil minimum carte : 0.2 ha)
 4. Écriture de data/alerts.js (affiché par la carte Leaflet du dashboard)
-5. Alerte Telegram si la perte dépasse le seuil — envoyée à TOUS les abonnés.
+5. Alerte automatique si la perte atteint ou dépasse 0.5 ha.
 
 Abonnements publics : toute personne qui ouvre le bot
 (t.me/pnkb_forestwatch_alert_bot) et appuie sur « DÉMARRER » est ajoutée
@@ -18,11 +18,6 @@ Modes :
 - python scripts/satellite_scan.py                → scan satellitaire complet
 - python scripts/satellite_scan.py --abonnements → traite uniquement les
   nouveaux abonnés Telegram (utilisé par le workflow quotidien)
-
-Limites connues (MVP) :
-- Résolution grossière (le parc entier sur une image 512x512) ; à affiner
-  par tuilage pour détecter de petites clairières.
-- Les nuages peuvent masquer certaines zones.
 """
 import io
 import json
@@ -39,16 +34,19 @@ TOKEN_URL = "https://identity.dataspace.copernicus.com/auth/realms/CDSE/protocol
 PROCESS_URL = "https://sh.dataspace.copernicus.com/api/v1/process"
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 SUBSCRIBERS_FILE = "data/subscribers.json"
-DASHBOARD_URL = "https://galaxie-andromede.github.io/PNKB-ForestWatch/"
+DASHBOARD_URL = "https://pnkb-forestwatch.vercel.app/"
+WHATSAPP_CHANNEL_URL = "https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18"
 
-# Zone approximative du PNKB (à remplacer par les limites officielles,
-# voir data/pnkb_boundary.geojson)
-BBOX = [28.35, -2.35, 28.95, -1.85]  # [lon_min, lat_min, lon_max, lat_max] WGS84
+# Zone approximative du PNKB (WGS84)
+BBOX = [28.35, -2.35, 28.95, -1.85]  # [lon_min, lat_min, lon_max, lat_max]
 IMG_SIZE = 512
-GRID = 16                      # découpage de l'image en blocs pour regrouper les pertes
-NDVI_LOSS_THRESHOLD = 0.30     # baisse de NDVI considérée comme une perte
+GRID = 16                      # Découpage de l'image en blocs pour regrouper les pertes
+NDVI_LOSS_THRESHOLD = 0.30     # Baisse de NDVI considérée comme une perte
 NDVI_FOREST_MIN = 0.55         # NDVI minimal pour considérer la zone forestière
-ALERT_AREA_THRESHOLD_HA = 0.05  # seuil d'alerte Telegram (hectares)
+
+# --- SEUILS CALIBRÉS POUR ÉVITER LES FAUSSES ALERTES ---
+MIN_MAP_DETECTION_HA = 0.2     # Seuil minimal d'affichage sur la carte (dès 0.2 ha)
+ALERT_AREA_THRESHOLD_HA = 0.5  # Seuil d'alerte critique Telegram/WhatsApp (dès 0.5 ha)
 
 # Renvoie [NDVI quantifié sur 255 niveaux, masque de validité]
 EVALSCRIPT = """
@@ -122,7 +120,7 @@ def fetch_ndvi_png(token, date_from, date_to):
 
 
 def cluster_losses(ndvi_before, valid_before, ndvi_after, valid_after):
-    """Regroupe les pixels de perte par blocs et retourne des zones estimées."""
+    """Regroupe les pixels de perte et classe par sévérité (MEDIUM vs HIGH)."""
     loss = (
         valid_before
         & valid_after
@@ -148,19 +146,26 @@ def cluster_losses(ndvi_before, valid_before, ndvi_after, valid_after):
             if n == 0:
                 continue
             area_ha = round(n * ha_per_px, 1)
-            if area_ha < 0.5:
+            
+            # FILTRE : On ignore ce qui est inférieur à 0.2 ha pour éviter le bruit
+            if area_ha < MIN_MAP_DETECTION_HA:
                 continue
+
             ys, xs = np.where(block)
             row = gy + ys.mean()
             col = gx + xs.mean()
             lat = lat_max - (row / IMG_SIZE) * (lat_max - lat_min)
             lon = lon_min + (col / IMG_SIZE) * (lon_max - lon_min)
+            
+            # SÉVÉRITÉ : HIGH (>= 0.5 ha, Rouge) ou MEDIUM (0.2 à 0.5 ha, Orange)
+            severity = "HIGH" if area_ha >= ALERT_AREA_THRESHOLD_HA else "MEDIUM"
+
             zones.append({
                 "type": "deforestation",
                 "lat": round(float(lat), 4),
                 "lon": round(float(lon), 4),
                 "area_ha": area_ha,
-                "severity": "HIGH" if area_ha >= ALERT_AREA_THRESHOLD_HA else "MEDIUM",
+                "severity": severity,
             })
     total_ha = round(float(np.sum(loss)) * ha_per_px, 1)
     return zones, total_ha
@@ -196,8 +201,7 @@ def save_subscribers(subs):
 
 
 def process_new_subscribers(token):
-    """Détecte les personnes ayant appuyé sur « DÉMARRER » (API getUpdates),
-    les ajoute à la liste des abonnés et leur envoie un message de confirmation."""
+    """Détecte les personnes ayant appuyé sur « DÉMARRER » sur Telegram."""
     subs = load_subscribers()
     try:
         resp = requests.get(
@@ -221,8 +225,6 @@ def process_new_subscribers(token):
         if chat_id is None or str(chat_id) in known or str(chat_id) in {str(n) for n in new_ids}:
             continue
         text = (msg.get("text") or "").strip().lower()
-        # S'abonner : message privé (l'utilisateur a forcément appuyé sur DÉMARRER)
-        # ou commande /start explicite.
         if chat.get("type") == "private" or text.startswith("/start"):
             new_ids.append(chat_id)
 
@@ -236,10 +238,10 @@ def process_new_subscribers(token):
                     "text": (
                         "✅ Bienvenue sur PNKB Forest Watch !\n\n"
                         "Vous recevrez désormais une alerte dès qu'une perte forestière "
-                        "est détectée dans le Parc national de Kahuzi-Biega "
-                        "(scan Sentinel-2 chaque lundi).\n\n"
+                        "significative (≥ 0.5 ha) est détectée dans le Parc National de Kahuzi-Biega.\n\n"
                         f"🌐 Dashboard : {DASHBOARD_URL}\n"
-                        "🔕 Pour arrêter les alertes : bloquez simplement ce bot."
+                        f"📢 Chaîne WhatsApp : {WHATSAPP_CHANNEL_URL}\n\n"
+                        "🔕 Pour arrêter : bloquez simplement ce bot."
                     ),
                 },
                 timeout=30,
@@ -256,12 +258,11 @@ def process_new_subscribers(token):
 
 
 def send_telegram(message):
-    """Envoie le message au Chat ID principal ET à tous les abonnés ;
-    retire de la liste les abonnés qui ont bloqué le bot (erreur 403)."""
+    """Envoie le message au Chat ID principal et aux abonnés."""
     token = get_bot_token()
     main_id = os.environ.get("TELEGRAM_CHAT_ID", "")
     if not token or not main_id:
-        print("⚠️ Telegram non configuré (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID) : alerte ignorée.")
+        print("⚠️ Telegram non configuré : alerte ignorée.")
         return
 
     subs = load_subscribers()
@@ -284,14 +285,14 @@ def send_telegram(message):
         except requests.HTTPError:
             if getattr(resp, "status_code", None) == 403:
                 blocked.append(chat_id)
-            print(f"⚠️ Envoi impossible à {chat_id} (bot bloqué ?).")
+            print(f"⚠️ Envoi impossible à {chat_id} (bot bloqué).")
         except requests.RequestException as exc:
             print(f"⚠️ Erreur d'envoi Telegram ({chat_id}) : {exc}")
 
     if blocked:
         subs["chat_ids"] = [c for c in subs["chat_ids"] if str(c) not in blocked]
         save_subscribers(subs)
-        print(f"🗑️ {len(blocked)} abonné(s) retiré(s) de la liste (bot bloqué).")
+        print(f"🗑️ {len(blocked)} abonné(s) retiré(s) de la liste.")
     print(f"✅ Alerte Telegram envoyée à {sent} destinataire(s).")
 
 
@@ -336,7 +337,6 @@ def main():
             [], 0.0, "", "not_configured",
             "Identifiants Copernicus manquants. Ajoutez les secrets GitHub : " + ", ".join(missing),
         )
-        # Les abonnements fonctionnent même sans Copernicus (seul le scan est bloqué).
         if get_bot_token():
             process_new_subscribers(get_bot_token())
         return
@@ -356,20 +356,25 @@ def main():
     scan_date = today.isoformat()
     write_alerts_js(zones, total_ha, scan_date, "ok")
 
-    # Enregistre les personnes ayant appuyé sur « DÉMARRER » depuis le dernier passage.
     if get_bot_token():
         process_new_subscribers(get_bot_token())
 
+    # DÉCLENCHEMENT DE L'ALERTE : Uniquement si la perte totale atteint ou dépasse 0.5 ha
     if zones and total_ha >= ALERT_AREA_THRESHOLD_HA:
         top = sorted(zones, key=lambda z: -z["area_ha"])[:5]
         lines = "\n".join(
             f"• {z['severity']} : ~{z['area_ha']} ha à {z['lat']}, {z['lon']}" for z in top
         )
-        send_telegram(
-            "🚨 PNKB Forest Watch\n"
+        
+        # Message complet prêt à être partagé sur la Chaîne WhatsApp
+        alert_message = (
+            "🚨 ALERTE PNKB FOREST WATCH\n"
             f"Perte forestière estimée : ~{total_ha} ha (scan du {scan_date})\n\n"
-            f"{lines}\n\nCarte : voir le dashboard GitHub Pages."
+            f"{lines}\n\n"
+            f"🌐 Voir la carte : {DASHBOARD_URL}\n"
+            f"📢 Chaîne WhatsApp : {WHATSAPP_CHANNEL_URL}"
         )
+        send_telegram(alert_message)
 
 
 if __name__ == "__main__":
