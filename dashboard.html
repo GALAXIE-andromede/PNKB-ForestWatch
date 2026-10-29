@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PNKB Forest Watch — Dashboard Opérationnel</title>
-    <!-- Tailwind CSS (Le design moderne validé) -->
+    <!-- Tailwind CSS (Design moderne validé) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="manifest" href="manifest.json">
@@ -48,21 +48,22 @@
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
         }
 
+        /* HAUTEUR ADAPTATIVE : 380px sur Android / 500px sur Ordinateur */
         #map {
-            height: 520px !important;
-            min-height: 520px !important;
-            width: 100% !important;
+            height: 500px;
+            width: 100%;
             border-radius: 1rem;
+            position: relative;
             z-index: 10;
         }
-        .park-label {
-            background: rgba(2, 44, 34, 0.85);
-            border: 1px solid #10b981;
-            color: #ecfdf5;
-            font-weight: bold;
-            font-size: 11px;
-            border-radius: 4px;
-            padding: 2px 6px;
+        @media (max-width: 640px) {
+            #map {
+                height: 380px !important;
+            }
+        }
+        .leaflet-container {
+            font-family: inherit;
+            background: #0f172a;
         }
     </style>
 </head>
@@ -167,7 +168,8 @@
                     </div>
                 </div>
 
-                <div id="map" class="border border-slate-800 shadow-inner"></div>
+                <!-- CONTENEUR ADAPTÉ ANDROID & PC -->
+                <div id="map" class="border border-slate-800 shadow-inner overflow-hidden"></div>
             </div>
         </section>
 
@@ -283,7 +285,7 @@
             </div>
         </section>
 
-        <!-- 6. STATISTIQUES / INDICATEURS -->
+        <!-- 6. STATISTIQUES (CELA FONCTIONNE) -->
         <section id="indicateurs" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -296,7 +298,6 @@
                         <span>Exporter le rapport</span>
                     </button>
                 </div>
-                <!-- Conteneur avec hauteur fixe pour empêcher le canvas de s'écraser à 0 px -->
                 <div class="pt-2 relative h-72 sm:h-80 w-full">
                     <canvas id="forestChart"></canvas>
                 </div>
@@ -347,14 +348,104 @@
     <!-- CHARGEMENT DU SCRIPT APP.JS D'ORIGINE -->
     <script src="app.js"></script>
 
-    <!-- CORRECTIF ULTRA-CIBLÉ POUR LE CHARGEMENT VISUEL DE LA CARTE ET DU GRAPHIQUE -->
+    <!-- CORRECTIFS GÉOMATIQUES : CARTE ROBUSTE ANDROID/PC & GRAPHIQUES -->
     <script>
-        // 1. Fonction qui force Chart.js à dessiner la courbe historique nettement en émeraude
+        // 1. INITIALISATION ROBUSTE DE LA CARTE ADAPTÉE ANDROID ET PC
+        function loadMapRobust() {
+            var container = document.getElementById('map');
+            if (!container) return;
+
+            // Si la carte a déjà été initialisée par app.js mais a des soucis de zoom/affichage
+            if (window.mapInstance) {
+                try {
+                    window.mapInstance.invalidateSize(true);
+                    window.mapInstance.setView([-2.30, 28.75], 9);
+                    return;
+                } catch(e) {
+                    try { window.mapInstance.remove(); } catch(err) {}
+                    window.mapInstance = null;
+                }
+            }
+
+            // Création propre de la carte Leaflet
+            try {
+                var map = L.map('map', {
+                    zoomControl: true,
+                    tap: true // Optimisation tactile pour smartphones Android
+                }).setView([-2.30, 28.75], 9);
+                window.mapInstance = map;
+
+                // Fond de carte OpenStreetMap officiel
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Marqueur officiel ICCN - Station principale de Tshivanga
+                L.marker([-2.316, 28.705]).addTo(map)
+                    .bindPopup('<b>🌳 Station de Tshivanga (ICCN)</b><br>Quartier Général du Parc National de Kahuzi-Biega')
+                    .openPopup();
+
+                // Chargement des limites GeoJSON du PNKB
+                fetch('data/pnkb_boundary.geojson')
+                    .then(function(res) {
+                        if (res.ok) return res.json();
+                        throw new Error('GeoJSON');
+                    })
+                    .then(function(geojson) {
+                        var parkLayer = L.geoJSON(geojson, {
+                            style: {
+                                color: '#10b981',
+                                weight: 3,
+                                opacity: 0.9,
+                                fillColor: '#10b981',
+                                fillOpacity: 0.15
+                            },
+                            onEachFeature: function(feature, layer) {
+                                var name = (feature.properties && feature.properties.name) ? feature.properties.name : 'Parc National de Kahuzi-Biega';
+                                layer.bindPopup('<b>🌳 ' + name + '</b><br>Limites officielles ICCN');
+                            }
+                        }).addTo(map);
+
+                        try {
+                            map.fitBounds(parkLayer.getBounds(), { padding: [15, 15] });
+                        } catch(e) {}
+                    })
+                    .catch(function(err) {
+                        console.warn('Limites en cours de chargement :', err);
+                    });
+
+                // Affichage des alertes (pnkbAlerts)
+                var alerts = (typeof pnkbAlerts !== 'undefined' && pnkbAlerts) ? pnkbAlerts : [];
+                alerts.forEach(function(z) {
+                    var color = z.severity === 'HIGH' ? '#ef4444' : '#f59e0b';
+                    L.circle([z.lat, z.lon], {
+                        radius: Math.max(300, (z.area_ha || 1) * 40),
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.4,
+                        weight: 2
+                    }).addTo(map).bindPopup(
+                        '<b>🚨 Perte forestière (' + z.severity + ')</b><br>' +
+                        'Superficie : <strong>' + z.area_ha + ' ha</strong><br>' +
+                        'Position : ' + z.lat + ', ' + z.lon
+                    );
+                });
+
+                setTimeout(function() {
+                    map.invalidateSize(true);
+                }, 200);
+
+            } catch(err) {
+                console.error('Erreur Leaflet :', err);
+            }
+        }
+
+        // 2. DESSIN DU GRAPHIQUE HISTORIQUE
         function renderForestChart() {
             var canvas = document.getElementById('forestChart');
             if (!canvas) return;
 
-            // Si le graphique existe déjà, on le force à s'adapter à la largeur
             var existingChart = Chart.getChart(canvas);
             if (existingChart) {
                 existingChart.resize();
@@ -362,7 +453,6 @@
                 return;
             }
 
-            // Données officielles
             var d = (typeof forestHistoricalData !== 'undefined' && forestHistoricalData) ? forestHistoricalData : {
                 years: [2015, 2017, 2019, 2021, 2023, 2025],
                 canopyCoverPercent: [98.5, 97.9, 97.2, 96.6, 95.9, 95.2]
@@ -375,7 +465,7 @@
                     datasets: [{
                         label: 'Couvert forestier estimé (%)',
                         data: d.canopyCoverPercent,
-                        borderColor: '#10b981', // Vert émeraude lumineux
+                        borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.15)',
                         borderWidth: 3,
                         fill: true,
@@ -408,46 +498,40 @@
             });
         }
 
-        // 2. Gestionnaire d'onglets robuste avec réveil garanti de Leaflet et Chart.js
+        // 3. GESTION DES ONGLETS
         window.switchTab = function(evt, tabName) {
-            // Masquer les onglets
             document.querySelectorAll('.tab-content').forEach(function(c) {
                 c.classList.remove('active');
             });
-            // Désactiver les boutons
             document.querySelectorAll('.tab-btn').forEach(function(b) {
                 b.classList.remove('active');
             });
 
-            // Afficher l'onglet sélectionné
             var target = document.getElementById(tabName);
             if (target) {
                 target.classList.add('active');
             }
 
-            // Activer le bouton cliqué
             if (evt && evt.currentTarget) {
                 evt.currentTarget.classList.add('active');
             }
 
-            // RÉVEIL GARANTI DE LA CARTE LEAFLET
+            // CHARGEMENT DIRECT DE LA CARTE SUR ANDROID ET PC
             if (tabName === 'carte') {
                 setTimeout(function() {
-                    if (window.mapInstance) {
-                        window.mapInstance.invalidateSize(true);
-                    }
-                }, 150);
+                    loadMapRobust();
+                }, 100);
             }
 
-            // RÉVEIL GARANTI DU GRAPHIQUE HISTORIQUE
+            // AFFICHAGE DU GRAPHIQUE
             if (tabName === 'indicateurs') {
                 setTimeout(function() {
                     renderForestChart();
-                }, 150);
+                }, 100);
             }
         };
 
-        // Gestion locale des signalements
+        // 4. SIGNALEMENTS COMMUNAUTAIRES
         document.addEventListener("DOMContentLoaded", function() {
             loadSavedReports();
         });
