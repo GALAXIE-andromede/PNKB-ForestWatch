@@ -81,14 +81,13 @@
                 </div>
             </div>
 
-            <!-- LIENS D'ENTÊTE + BOUTON PARTAGER SUR WHATSAPP AVEC LIEN VERCEL -->
+            <!-- LIENS D'ENTÊTE + BOUTON PARTAGER WHATSAPP (AVEC LIEN VERCEL) -->
             <div class="flex items-center gap-2 sm:gap-3 text-xs">
                 <a href="index.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-semibold transition flex items-center gap-1.5">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>Accueil</span>
                 </a>
 
-                <!-- BOUTON DE PARTAGE AVEC LE LIEN VERCEL OFFICIEL -->
                 <a href="https://api.whatsapp.com/send?text=%F0%9F%8C%B3%20*PNKB%20Forest%20Watch*%20%E2%80%94%20Suivez%20et%20prot%C3%A9gez%20le%20Parc%20National%20de%20Kahuzi-Biega%20(Sud-Kivu,%20RDC)%20depuis%20votre%20smartphone%20!%0A%0A%F0%9F%91%89%20https://pnkb-forestwatch.vercel.app/%0A%0A%F0%9F%93%A2%20Rejoignez%20aussi%20la%20Cha%C3%AEne%20WhatsApp%20d'alertes%20:%0A%F0%9F%91%89%20https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" 
                    target="_blank" 
                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-md transition flex items-center gap-1.5">
@@ -212,7 +211,7 @@
             </div>
         </section>
 
-        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC CAPTURE GPS INTÉGRÉE) -->
+        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC GPS) -->
         <section id="signalements" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-amber-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="border-b border-slate-800 pb-3">
@@ -247,7 +246,7 @@
                         </div>
                     </div>
 
-                    <!-- CHAMP GPS AUTOMATIQUE -->
+                    <!-- CHAMP GPS -->
                     <div>
                         <label class="block text-xs uppercase font-semibold text-slate-300 mb-1">Coordonnées GPS de l'incident</label>
                         <div class="flex gap-2">
@@ -283,7 +282,7 @@
             </div>
         </section>
 
-        <!-- 5. ONGLET VITRINE : DÉCOUVRIR LE PNKB -->
+        <!-- 5. ONGLET VITRINE : DÉCOUVRIR LE PNKB (AVEC VOS 4 PHOTOS LOCALES DANS DATA) -->
         <section id="vitrine" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-sky-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -299,27 +298,53 @@
                     Situé dans la province du Sud-Kivu (RDC), le PNKB est l'un des sanctuaires de biodiversité les plus précieux d'Afrique centrale. Il préserve une transition écologique continue exceptionnelle sur <strong>2 708 mètres de dénivelé</strong> (de 600 m à 3 308 m d'altitude au sommet du Mont Kahuzi).
                 </p>
 
-                <!-- PHOTOS LIBRES DE DROITS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <!-- GRILLE DES 4 PHOTOS LOCALES (HÉBERGÉES DANS DATA/) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <!-- Photo 1 : Chimanuka -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Eastern_lowland_gorilla.jpg/640px-Eastern_lowland_gorilla.jpg" 
+                        <img src="data/chimanuka.jpg" 
                              alt="Gorille de Grauer dos argenté Chimanuka PNKB" 
                              class="w-full h-56 object-cover" />
                         <div class="p-3">
                             <strong class="text-white text-xs block font-bold">Le Dos Argenté <em>Chimanuka</em> (Secteur Tshivanga)</strong>
                             <p class="text-slate-400 text-[11px] mt-1">Mâle dominant emblématique du PNKB. Le gorille de Grauer (<em>Gorilla beringei graueri</em>) est le plus grand primate vivant au monde.</p>
-                            <span class="text-[9px] text-slate-500 block mt-1">Photo libre : Wikimedia Commons / CC BY 2.0</span>
+                            <span class="text-[9px] text-emerald-400 block mt-1">Parc National de Kahuzi-Biega</span>
                         </div>
                     </div>
 
+                    <!-- Photo 2 : Jeune Gorillon -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Eastern_Lowland_Gorilla_Infant_in_Kahuzi_Biega_National_Park.jpg/640px-Eastern_Lowland_Gorilla_Infant_in_Kahuzi_Biega_National_Park.jpg" 
+                        <img src="data/gorillon.jpg" 
                              alt="Jeune gorille de Grauer dans le PNKB" 
                              class="w-full h-56 object-cover" />
                         <div class="p-3">
                             <strong class="text-white text-xs block font-bold">Nourrisson du Groupe Familial (Haute Altitude)</strong>
                             <p class="text-slate-400 text-[11px] mt-1">Le PNKB abrite plus de 60 % de la population mondiale restante de cette sous-espèce endémique en danger critique d'extinction.</p>
-                            <span class="text-[9px] text-slate-500 block mt-1">Photo libre : Joe McKenna / Wikimedia Commons / CC BY 2.0</span>
+                            <span class="text-[9px] text-emerald-400 block mt-1">Secteur Tshivanga (ICCN)</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 3 : Forêt et Mont Kahuzi -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                        <img src="data/foret.jpg" 
+                             alt="Vue panoramique de la canopée du Mont Kahuzi" 
+                             class="w-full h-56 object-cover" />
+                        <div class="p-3">
+                            <strong class="text-white text-xs block font-bold">Canopée & Relief du Mont Kahuzi (3 308 m)</strong>
+                            <p class="text-slate-400 text-[11px] mt-1">Vue aérienne de la forêt de montagne et de la zone afro-alpine. Un château d'eau naturel vital pour tout le Sud-Kivu.</p>
+                            <span class="text-[9px] text-emerald-400 block mt-1">Massif de Kahuzi-Biega</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 4 : Forêt Dense et Cascade -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                        <img src="data/cascade.jpg" 
+                             alt="Forêt tropicale et cours d'eau dans le PNKB" 
+                             class="w-full h-56 object-cover" />
+                        <div class="p-3">
+                            <strong class="text-white text-xs block font-bold">Écosystème Aquatique & Forêt Primaire</strong>
+                            <p class="text-slate-400 text-[11px] mt-1">Réseau hydrographique dense alimentant le bassin versant du fleuve Congo et le lac Kivu.</p>
+                            <span class="text-[9px] text-emerald-400 block mt-1">Forêt dense sempervirente</span>
                         </div>
                     </div>
                 </div>
@@ -328,11 +353,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                         <h4 class="font-bold text-sky-400 mb-1">🏔️ Gradient Altitudinal</h4>
-                        <p class="text-slate-400 leading-relaxed">De 600 m dans le bassin sédimentaire jusqu'aux sommets éteints des Monts <strong>Kahuzi (3 308 m)</strong> et <strong>Biega (2 790 m)</strong>.</p>
+                        <p class="text-slate-400 leading-relaxed">De 600 m dans le bassin sédimentaire occidental jusqu'aux sommets des Monts <strong>Kahuzi (3 308 m)</strong> et <strong>Biega (2 790 m)</strong>.</p>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                         <h4 class="font-bold text-emerald-400 mb-1">🌿 Zonation Végétale</h4>
-                        <p class="text-slate-400 leading-relaxed">Bruyères géantes afro-alpines, bambouseraies d'altitude (<em>Yushania alpina</em>), et forêts équatoriales denses à Limbali (<em>Gilbertiodendron dewevrei</em>).</p>
+                        <p class="text-slate-400 leading-relaxed">Bruyères géantes afro-alpines, bambouseraies d'altitude (<em>Yushania alpina</em>), et forêts équatoriales à Limbali (<em>Gilbertiodendron dewevrei</em>).</p>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                         <h4 class="font-bold text-amber-400 mb-1">⚠️ Corridor de Lemera</h4>
