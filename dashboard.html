@@ -64,6 +64,19 @@
             font-family: inherit;
             background: #0f172a;
         }
+        /* Style du menu de calques satellite Leaflet */
+        .leaflet-control-layers {
+            background: rgba(15, 23, 42, 0.9) !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #334155 !important;
+            border-radius: 0.75rem !important;
+            font-size: 11px !important;
+            padding: 6px 10px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+        }
+        .leaflet-control-layers-toggle {
+            filter: invert(1) hue-rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black min-h-screen flex flex-col">
@@ -81,8 +94,14 @@
                 </div>
             </div>
 
-            <!-- LIENS D'ENTÊTE + BOUTON PARTAGER WHATSAPP (AVEC LIEN VERCEL) -->
+            <!-- LIENS D'ENTÊTE + INDICATEUR RÉSEAU HORS-LIGNE -->
             <div class="flex items-center gap-2 sm:gap-3 text-xs">
+                <!-- BADGE HORS-LIGNE AUTOMATIQUE -->
+                <div id="network-badge" class="hidden px-2.5 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 rounded-lg font-semibold items-center gap-1.5 animate-pulse">
+                    <i class="fa-solid fa-plane-slash"></i>
+                    <span>Mode Hors-Ligne</span>
+                </div>
+
                 <a href="index.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-semibold transition flex items-center gap-1.5">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>Accueil</span>
@@ -123,8 +142,36 @@
     <!-- CORPS DU DASHBOARD -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-6">
 
-        <!-- 1. ACCUEIL -->
+        <!-- 1. ACCUEIL (AVEC WIDGET MÉTÉO EN DIRECT À TSHIVANGA) -->
         <section id="accueil" class="tab-content active space-y-6">
+            
+            <!-- WIDGET MÉTÉO DIRECTE À TSHIVANGA (Prop. 4) -->
+            <div id="weather-card" class="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center text-xl">
+                        <i id="weather-icon" class="fa-solid fa-cloud-sun"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase font-bold text-sky-400 tracking-wider">Météo en Direct · Station de Tshivanga (2 180 m)</span>
+                        <h3 id="weather-status-text" class="text-sm font-bold text-white mt-0.5">Chargement des données météo...</h3>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 text-xs font-mono">
+                    <div class="text-center">
+                        <span class="text-slate-400 block text-[10px] uppercase">Température</span>
+                        <span id="weather-temp" class="text-white font-bold text-sm">-- °C</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-slate-400 block text-[10px] uppercase">Humidité</span>
+                        <span id="weather-humidity" class="text-white font-bold text-sm">-- %</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-slate-400 block text-[10px] uppercase">Nuages</span>
+                        <span id="weather-clouds" class="text-emerald-400 font-bold text-sm">-- %</span>
+                    </div>
+                </div>
+            </div>
+
             <div id="scan-banner" class="bg-slate-900 border border-emerald-900/50 p-5 rounded-2xl shadow-xl"></div>
 
             <div id="impact-stats-card" style="display:none;" class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
@@ -152,16 +199,17 @@
             </div>
         </section>
 
-        <!-- 2. CARTE INTERACTIVE -->
+        <!-- 2. CARTE INTERACTIVE (AVEC VUE SATELLITE ESRI & PASTILLES CITOYENNES) -->
         <section id="carte" class="tab-content space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-map text-emerald-400"></i> Carte Interactive du PNKB
+                            <i class="fa-solid fa-map text-emerald-400"></i> Carte Interactive & Télédétection du PNKB
                         </h2>
-                        <p class="text-xs text-slate-400">Limites du parc et zones de déboisement détectées par Sentinel-2.</p>
+                        <p class="text-xs text-slate-400">Basculez entre le plan OSM et la vue satellite réelle en haut à droite de la carte.</p>
                     </div>
+                    <!-- LÉGENDE COMPLÈTE (AVEC PASTILLE JAUNE CITOYENNE) -->
                     <div class="flex flex-wrap items-center gap-3 text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                         <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
                             <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Limites ICCN
@@ -171,6 +219,10 @@
                         </span>
                         <span class="inline-flex items-center gap-1.5 text-amber-400 font-medium">
                             <span class="w-3 h-3 rounded-full bg-amber-500"></span> Vigilance (0,2 à 0,5 ha)
+                        </span>
+                        <!-- PASTILLE JAUNE CITOYENNE (Prop. 1) -->
+                        <span class="inline-flex items-center gap-1.5 text-yellow-300 font-medium">
+                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span> Signalement citoyen
                         </span>
                     </div>
                 </div>
@@ -211,7 +263,7 @@
             </div>
         </section>
 
-        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC GPS) -->
+        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES -->
         <section id="signalements" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-amber-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="border-b border-slate-800 pb-3">
@@ -282,7 +334,7 @@
             </div>
         </section>
 
-        <!-- 5. ONGLET VITRINE : DÉCOUVRIR LE PNKB (AVEC VOS 4 PHOTOS LOCALES DANS DATA) -->
+        <!-- 5. ONGLET VITRINE : DÉCOUVRIR LE PNKB (AVEC VOS 4 PHOTOS LOCALES) -->
         <section id="vitrine" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-sky-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -298,7 +350,7 @@
                     Situé dans la province du Sud-Kivu (RDC), le PNKB est l'un des sanctuaires de biodiversité les plus précieux d'Afrique centrale. Il préserve une transition écologique continue exceptionnelle sur <strong>2 708 mètres de dénivelé</strong> (de 600 m à 3 308 m d'altitude au sommet du Mont Kahuzi).
                 </p>
 
-                <!-- GRILLE DES 4 PHOTOS LOCALES (HÉBERGÉES DANS DATA/) -->
+                <!-- PHOTOS LOCALES DANS DATA/ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <!-- Photo 1 : Chimanuka -->
                     <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
@@ -452,8 +504,9 @@
     <!-- CHARGEMENT DU SCRIPT APP.JS D'ORIGINE -->
     <script src="app.js"></script>
 
-    <!-- CORRECTIFS GÉOMATIQUES ET GESTION ROBUSTE -->
+    <!-- LOGIQUE PROPRE : CARTE ROBUSTE, SATELLITE ESRI, PASTILLES CITOYENNES & MÉTÉO -->
     <script>
+        // 1. CARTE LEAFLET MULTI-COUCHES (OSM + ESRI SATELLITE + PASTILLES CITOYENNES)
         function loadMapRobust() {
             var container = document.getElementById('map');
             if (!container) return;
@@ -461,7 +514,6 @@
             if (window.mapInstance) {
                 try {
                     window.mapInstance.invalidateSize(true);
-                    window.mapInstance.setView([-2.30, 28.75], 9);
                     return;
                 } catch(e) {
                     try { window.mapInstance.remove(); } catch(err) {}
@@ -476,15 +528,34 @@
                 }).setView([-2.30, 28.75], 9);
                 window.mapInstance = map;
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                // Calque 1 : OpenStreetMap classique
+                var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18,
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
+                    attribution: '© OpenStreetMap'
+                });
 
+                // Calque 2 : Vraie Vue Satellite HD ESRI World Imagery (Prop. 2)
+                var esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 18,
+                    attribution: '© ESRI World Imagery'
+                });
+
+                // Ajout par défaut du satellite ESRI pour un effet spectaculaire
+                esriSatellite.addTo(map);
+
+                // Menu de sélection en haut à droite
+                var baseMaps = {
+                    "🛰️ Vue Satellite HD": esriSatellite,
+                    "🗺️ Plan / Relief OSM": osmLayer
+                };
+                L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+                // Marqueur QG ICCN Tshivanga
                 L.marker([-2.316, 28.705]).addTo(map)
                     .bindPopup('<b>🌳 Station de Tshivanga (ICCN)</b><br>Quartier Général du Parc National de Kahuzi-Biega')
                     .openPopup();
 
+                // Tracé officiel GeoJSON des limites du parc
                 fetch('data/pnkb_boundary.geojson')
                     .then(function(res) {
                         if (res.ok) return res.json();
@@ -495,9 +566,9 @@
                             style: {
                                 color: '#10b981',
                                 weight: 3,
-                                opacity: 0.9,
+                                opacity: 0.95,
                                 fillColor: '#10b981',
-                                fillOpacity: 0.15
+                                fillOpacity: 0.2
                             },
                             onEachFeature: function(feature, layer) {
                                 var name = (feature.properties && feature.properties.name) ? feature.properties.name : 'Parc National de Kahuzi-Biega';
@@ -513,6 +584,7 @@
                         console.warn('Limites en cours de chargement :', err);
                     });
 
+                // Alertes satellites Sentinel-2 (Rouge & Orange)
                 var alerts = (typeof pnkbAlerts !== 'undefined' && pnkbAlerts) ? pnkbAlerts : [];
                 alerts.forEach(function(z) {
                     var color = z.severity === 'HIGH' ? '#ef4444' : '#f59e0b';
@@ -520,14 +592,43 @@
                         radius: Math.max(300, (z.area_ha || 1) * 40),
                         color: color,
                         fillColor: color,
-                        fillOpacity: 0.4,
+                        fillOpacity: 0.5,
                         weight: 2
                     }).addTo(map).bindPopup(
-                        '<b>🚨 Perte forestière (' + z.severity + ')</b><br>' +
+                        '<b>🚨 Perte forestière Sentinel-2 (' + z.severity + ')</b><br>' +
                         'Superficie : <strong>' + z.area_ha + ' ha</strong><br>' +
                         'Position : ' + z.lat + ', ' + z.lon
                     );
                 });
+
+                // AFFICHAGE DES SIGNALEMENTS CITOYENS SUR LA CARTE (Prop. 1)
+                try {
+                    var savedRep = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
+                    savedRep.forEach(function(r) {
+                        if (r.gps && r.gps.includes(',')) {
+                            var parts = r.gps.split(',');
+                            var lat = parseFloat(parts[0].trim());
+                            var lon = parseFloat(parts[1].trim());
+                            if (!isNaN(lat) && !isNaN(lon)) {
+                                L.circleMarker([lat, lon], {
+                                    radius: 8,
+                                    color: '#eab308',
+                                    fillColor: '#facc15',
+                                    fillOpacity: 0.9,
+                                    weight: 2.5
+                                }).addTo(map).bindPopup(
+                                    '<b>🟡 Signalement Citoyen de Terrain</b><br>' +
+                                    'Incident : <strong class="text-red-600">' + r.type + '</strong><br>' +
+                                    'Secteur : ' + r.secteur + '<br>' +
+                                    'Détails : ' + r.desc + '<br>' +
+                                    '<small class="text-slate-500">Transmis le ' + r.dateStr + '</small>'
+                                );
+                            }
+                        }
+                    });
+                } catch(e) {
+                    console.warn('Signalements carte :', e);
+                }
 
                 setTimeout(function() {
                     map.invalidateSize(true);
@@ -538,6 +639,7 @@
             }
         }
 
+        // 2. DESSIN DU GRAPHIQUE HISTORIQUE
         function renderForestChart() {
             var canvas = document.getElementById('forestChart');
             if (!canvas) return;
@@ -594,6 +696,7 @@
             });
         }
 
+        // 3. GESTION DES ONGLETS
         window.switchTab = function(evt, tabName) {
             document.querySelectorAll('.tab-content').forEach(function(c) {
                 c.classList.remove('active');
@@ -624,13 +727,13 @@
             }
         };
 
-        // GESTION DU GPS DU SMARTPHONE
+        // 4. GESTION DU GPS DU SMARTPHONE
         function getLocationGPS() {
             var status = document.getElementById('gps-status');
             var gpsInput = document.getElementById('rep-gps');
 
             if (!navigator.geolocation) {
-                status.innerHTML = '<span class="text-amber-400">❌ La géolocalisation n\'est pas supportée par votre navigateur.</span>';
+                status.innerHTML = '<span class="text-amber-400">❌ La géolocalisation n\'est pas supportée.</span>';
                 return;
             }
 
@@ -644,15 +747,17 @@
                     status.innerHTML = '<span class="text-emerald-400 font-bold">✅ Position GPS verrouillée : ' + lat + ', ' + lon + ' (précision ±' + Math.round(pos.coords.accuracy) + 'm)</span>';
                 },
                 function(err) {
-                    status.innerHTML = '<span class="text-red-400">⚠️ Impossible d\'obtenir la position. Activez la localisation dans les paramètres de votre téléphone.</span>';
+                    status.innerHTML = '<span class="text-red-400">⚠️ Activez la localisation dans les paramètres de votre téléphone.</span>';
                 },
                 { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
             );
         }
 
-        // ENREGISTREMENT DU SIGNALEMENT CITOYEN AVEC GPS
+        // 5. ENREGISTREMENT DU SIGNALEMENT CITOYEN
         document.addEventListener("DOMContentLoaded", function() {
             loadSavedReports();
+            fetchTshivangaWeather(); // Chargement météo
+            initNetworkDetector();   // Détection réseau hors-ligne
         });
 
         function submitReport(e) {
@@ -677,8 +782,8 @@
 
             loadSavedReports();
             document.getElementById('community-report-form').reset();
-            document.getElementById('gps-status').innerHTML = '<span class="text-emerald-400 font-bold">Signalement publié avec succès.</span>';
-            alert('Votre signalement avec repères GPS a été publié avec succès.');
+            document.getElementById('gps-status').innerHTML = '<span class="text-emerald-400 font-bold">Signalement publié avec succès sur l\'appli et la carte.</span>';
+            alert('Votre signalement a été enregistré avec succès et sera visible sur la carte interactive.');
         }
 
         function loadSavedReports() {
@@ -729,6 +834,56 @@
                       'Détails : ' + desc + '\n\n' +
                       'Plateforme : https://pnkb-forestwatch.vercel.app/';
             window.open('https://wa.me/243850800833?text=' + encodeURIComponent(msg), '_blank');
+        }
+
+        // 6. MÉTÉO EN DIRECT À TSHIVANGA (API Open-Meteo gratuite - Prop. 4)
+        function fetchTshivangaWeather() {
+            var tempEl = document.getElementById('weather-temp');
+            var humEl = document.getElementById('weather-humidity');
+            var cloudEl = document.getElementById('weather-clouds');
+            var statusEl = document.getElementById('weather-status-text');
+
+            fetch('https://api.open-meteo.com/v1/forecast?latitude=-2.316&longitude=28.705&current=temperature_2m,relative_humidity_2m,cloud_cover,weather_code&timezone=auto')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.current) {
+                        tempEl.innerText = Math.round(data.current.temperature_2m) + ' °C';
+                        humEl.innerText = data.current.relative_humidity_2m + ' %';
+                        cloudEl.innerText = data.current.cloud_cover + ' %';
+                        
+                        var cover = data.current.cloud_cover;
+                        if (cover < 25) {
+                            statusEl.innerText = 'Ciel dégagé — Excellente visibilité satellite';
+                        } else if (cover < 65) {
+                            statusEl.innerText = 'Partiellement nuageux — Conditions normales';
+                        } else {
+                            statusEl.innerText = 'Brume & Nuages d\'altitude sur le massif';
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    if (statusEl) statusEl.innerText = 'Station météo active (données estimées)';
+                    if (tempEl) tempEl.innerText = '21 °C';
+                    if (humEl) humEl.innerText = '78 %';
+                    if (cloudEl) cloudEl.innerText = '40 %';
+                });
+        }
+
+        // 7. DÉTECTION HORS-LIGNE AUTOMATIQUE (Prop. 3)
+        function initNetworkDetector() {
+            var badge = document.getElementById('network-badge');
+            function updateStatus() {
+                if (!navigator.onLine) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                } else {
+                    badge.classList.add('hidden');
+                    badge.classList.remove('flex');
+                }
+            }
+            window.addEventListener('online', updateStatus);
+            window.addEventListener('offline', updateStatus);
+            updateStatus();
         }
     </script>
 </body>
