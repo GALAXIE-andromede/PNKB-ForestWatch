@@ -93,21 +93,32 @@
                 </div>
             </div>
 
-            <!-- LIENS D'ENTÊTE + SÉLECTEUR 3 LANGUES (FR / EN / SW) -->
+            <!-- LIENS D'ENTÊTE + SOS SMS + QR CODE + LANGUES -->
             <div class="flex items-center gap-2 sm:gap-3 text-xs">
-                <!-- SÉLECTEUR DE LANGUE (Prop. 2) -->
-                <div class="relative">
-                    <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
-                        <option value="fr">🇫🇷 FR</option>
-                        <option value="en">🇬🇧 EN</option>
-                        <option value="sw">🇨🇩 SW</option>
-                    </select>
-                </div>
+                <!-- SÉLECTEUR 3 LANGUES -->
+                <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+                    <option value="fr">🇫🇷 FR</option>
+                    <option value="en">🇬🇧 EN</option>
+                    <option value="sw">🇨🇩 SW</option>
+                </select>
 
-                <!-- BADGE HORS-LIGNE -->
+                <!-- BOUTON SOS SMS (100% HORS-LIGNE - Prop. 1) -->
+                <a href="sms:+243972731872?body=URGENCE%20PNKB%20:%20Incident%20grave%20signal%C3%A9%20dans%20le%20parc" 
+                   class="px-2.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/40 rounded-lg font-bold transition flex items-center gap-1.5 shadow-sm"
+                   title="SOS SMS direct (sans internet)">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="i18n-sos-btn" class="hidden sm:inline">SOS SMS</span>
+                </a>
+
+                <!-- BOUTON AFFICHE QR CODE (Prop. 5) -->
+                <button type="button" onclick="openQrModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg font-semibold transition flex items-center gap-1.5" title="Imprimer l'Affiche QR Code">
+                    <i class="fa-solid fa-qrcode text-emerald-400"></i>
+                    <span class="hidden md:inline">Affiche QR</span>
+                </button>
+
                 <div id="network-badge" class="hidden px-2.5 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 rounded-lg font-semibold items-center gap-1.5 animate-pulse">
                     <i class="fa-solid fa-plane-slash"></i>
-                    <span id="i18n-offline">Mode Hors-Ligne</span>
+                    <span id="i18n-offline">Hors-Ligne</span>
                 </div>
 
                 <a href="index.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-semibold transition flex items-center gap-1.5">
@@ -120,14 +131,6 @@
                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-md transition flex items-center gap-1.5">
                     <i class="fa-brands fa-whatsapp text-sm"></i>
                     <span id="i18n-share-btn">Partager</span>
-                </a>
-
-                <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" class="hidden md:inline-flex px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg font-semibold transition items-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp text-sm"></i>
-                    <span id="i18n-channel-btn">Chaîne Alertes</span>
-                </a>
-                <a href="tel:+243972731872" class="p-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 rounded-lg font-bold transition" title="Appel direct">
-                    <i class="fa-solid fa-phone"></i>
                 </a>
             </div>
         </div>
@@ -150,8 +153,10 @@
     <!-- CORPS DU DASHBOARD -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-6">
 
-        <!-- 1. ACCUEIL (AVEC MÉTÉO EN DIRECT À TSHIVANGA) -->
+        <!-- 1. ACCUEIL (AVEC MÉTÉO ET COMPTE À REBOURS DU SCAN) -->
         <section id="accueil" class="tab-content active space-y-6">
+            
+            <!-- MÉTÉO TSHIVANGA -->
             <div id="weather-card" class="bg-slate-900 border border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center text-xl">
@@ -175,6 +180,18 @@
                         <span id="i18n-clouds" class="text-slate-400 block text-[10px] uppercase">Nuages</span>
                         <span id="weather-clouds" class="text-emerald-400 font-bold text-sm">-- %</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- COMPTE À REBOURS DU PROCHAIN SCAN SENTINEL-2 (Prop. 2) -->
+            <div class="bg-slate-900/90 border border-emerald-800/40 p-4 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-white uppercase tracking-wider">🛰️ Cycle Orbital Sentinel-2</span>
+                </div>
+                <div class="text-xs text-slate-300 font-mono">
+                    <span id="i18n-next-scan-label">Prochain scan satellite :</span>
+                    <strong id="scan-countdown-text" class="text-emerald-400 ml-1">Lundi à 06:00 UTC (calcul...)</strong>
                 </div>
             </div>
 
@@ -205,7 +222,7 @@
             </div>
         </section>
 
-        <!-- 2. CARTE INTERACTIVE (AVEC VUE SATELLITE ESRI & PASTILLES CITOYENNES) -->
+        <!-- 2. CARTE INTERACTIVE (AVEC FILTRES INTELLIGENTS - Prop. 3) -->
         <section id="carte" class="tab-content space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -213,22 +230,43 @@
                         <h2 id="i18n-map-title" class="text-lg font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-map text-emerald-400"></i> Carte Interactive & Télédétection du PNKB
                         </h2>
-                        <p id="i18n-map-desc" class="text-xs text-slate-400">Basculez entre le plan OSM et la vue satellite réelle en haut à droite de la carte.</p>
+                        <p id="i18n-map-desc" class="text-xs text-slate-400">Basculez entre le plan OSM et la vue satellite réelle en haut à droite.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3 text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                        <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span> <span id="i18n-leg-park">Limites ICCN</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-red-400 font-medium">
-                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> <span id="i18n-leg-high">Alerte élevée (≥ 0,5 ha)</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-amber-400 font-medium">
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span> <span id="i18n-leg-med">Vigilance (0,2 à 0,5 ha)</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-yellow-300 font-medium">
-                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span> <span id="i18n-leg-citizen">Signalement citoyen</span>
-                        </span>
+
+                    <!-- BARRE DE FILTRES INTELLIGENTS DE LA CARTE (Prop. 3) -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="map-filter-sector" onchange="applyMapFilters()" class="bg-slate-950 text-slate-200 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Tous les secteurs</option>
+                            <option value="Tshivanga">Secteur Tshivanga</option>
+                            <option value="Itebero">Secteur Itebero</option>
+                            <option value="Nzovu">Secteur Nzovu</option>
+                            <option value="Lulingu">Secteur Lulingu</option>
+                            <option value="Corridor">Corridor Lemera</option>
+                        </select>
+
+                        <select id="map-filter-type" onchange="applyMapFilters()" class="bg-slate-950 text-slate-200 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Toutes les couches</option>
+                            <option value="SAT_HIGH">Alertes Satellites (≥ 0,5 ha)</option>
+                            <option value="SAT_MED">Vigilance Satellite (0,2 - 0,5 ha)</option>
+                            <option value="CITIZEN">Signalements Citoyens (Jaune)</option>
+                        </select>
                     </div>
+                </div>
+
+                <!-- LÉGENDE -->
+                <div class="flex flex-wrap items-center gap-3 text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                    <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span> <span id="i18n-leg-park">Limites ICCN</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-red-400 font-medium">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> <span id="i18n-leg-high">Alerte élevée (≥ 0,5 ha)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-amber-400 font-medium">
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span> <span id="i18n-leg-med">Vigilance (0,2 à 0,5 ha)</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-yellow-300 font-medium">
+                        <span class="w-3 h-3 rounded-full bg-yellow-400"></span> <span id="i18n-leg-citizen">Signalement citoyen</span>
+                    </span>
                 </div>
 
                 <div id="map" class="border border-slate-800 shadow-inner overflow-hidden"></div>
@@ -267,7 +305,7 @@
             </div>
         </section>
 
-        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC PRISE DE PHOTO ET EXPORT EXCEL/CSV) -->
+        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC FICHE PV - Prop. 4) -->
         <section id="signalements" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-amber-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -277,7 +315,6 @@
                         <p id="i18n-form-desc" class="text-xs text-slate-400 mt-1">Coupe d'arbres, feu de brousse, braconnage, intrusion observée ? Alertez immédiatement avec vos coordonnées GPS et photos.</p>
                     </div>
 
-                    <!-- BOUTON EXPORT EXCEL / CSV (Prop. 3) -->
                     <button type="button" onclick="exportReportsCSV()" class="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
                         <i class="fa-solid fa-file-excel text-sm"></i>
                         <span id="i18n-export-csv">Exporter en Excel / CSV</span>
@@ -323,7 +360,7 @@
                         <span id="gps-status" class="text-[11px] text-slate-500 mt-1 block">Cliquez sur « Ma position GPS » pour capturer automatiquement les coordonnées depuis votre téléphone.</span>
                     </div>
 
-                    <!-- PRISE DE PHOTO DIRECTE (Prop. 1) -->
+                    <!-- PRISE DE PHOTO -->
                     <div>
                         <label id="i18n-lbl-photo" class="block text-xs uppercase font-semibold text-slate-300 mb-1">Photo de l'incident (Optionnelle)</label>
                         <input type="file" id="rep-photo" accept="image/*" capture="camera" class="hidden" onchange="previewReportPhoto(event)" />
@@ -357,6 +394,7 @@
                 </form>
             </div>
 
+            <!-- LISTE AVEC BOUTON FICHE PV D'INCIDENT (Prop. 4) -->
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 id="i18n-recent-reports" class="text-lg font-bold text-white">Signalements Récents sur le Terrain</h2>
@@ -513,6 +551,96 @@
 
     </main>
 
+    <!-- MODAL 1 : AFFICHE QR CODE OFFICIELLE DU PARC (Prop. 5) -->
+    <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white text-slate-900 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-2">
+                <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Affiche Officielle PNKB</span>
+                <button type="button" onclick="closeQrModal()" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+            
+            <div id="qr-printable-area" class="space-y-3">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-black shadow-md">
+                    <i class="fa-solid fa-tree"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-900">PNKB FOREST WATCH</h3>
+                <p class="text-xs text-slate-600">Surveillance Satellitaire & Citoyenne du Parc National de Kahuzi-Biega (Sud-Kivu)</p>
+                
+                <div class="p-3 bg-slate-50 rounded-2xl border-2 border-emerald-600 inline-block my-2">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://pnkb-forestwatch.vercel.app/" alt="QR Code PNKB Forest Watch" class="w-48 h-48 mx-auto" />
+                </div>
+                
+                <p class="text-xs font-semibold text-emerald-800">Scannez avec votre téléphone pour ouvrir l'application</p>
+                <p class="text-[10px] text-slate-400 font-mono">https://pnkb-forestwatch.vercel.app/</p>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button type="button" onclick="window.print()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-print"></i> <span>Imprimer l'Affiche</span>
+                </button>
+                <button type="button" onclick="closeQrModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2 : FICHE OFFICIELLE PV D'INCIDENT ICCN (Prop. 4) -->
+    <div id="pv-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white text-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-2">
+                <span class="text-xs font-bold text-red-700 uppercase tracking-wider">République Démocratique du Congo · ICCN / PNKB</span>
+                <button type="button" onclick="closePvModal()" class="text-slate-400 hover:text-slate-600 font-bold text-base">✕</button>
+            </div>
+
+            <div id="pv-printable-area" class="space-y-3 text-xs leading-relaxed">
+                <div class="text-center border-b pb-3">
+                    <h3 class="text-base font-black text-slate-900 uppercase">Fiche de Constat d'Incident Environnemental</h3>
+                    <p class="text-[11px] text-slate-500">Plateforme Citoyenne & Satellitaire PNKB Forest Watch</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div><strong>Date & Heure :</strong> <span id="pv-date" class="block text-slate-700">--</span></div>
+                    <div><strong>Secteur :</strong> <span id="pv-secteur" class="block text-slate-700">--</span></div>
+                    <div><strong>Nature d'incident :</strong> <span id="pv-type" class="block text-red-600 font-bold">--</span></div>
+                    <div><strong>Coordonnées GPS :</strong> <span id="pv-gps" class="block font-mono text-slate-700">--</span></div>
+                </div>
+
+                <div>
+                    <strong>Description des faits observés :</strong>
+                    <p id="pv-desc" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 mt-1">--</p>
+                </div>
+
+                <div id="pv-photo-container" class="hidden">
+                    <strong>Preuve photographique de terrain :</strong>
+                    <div class="mt-1 rounded-xl overflow-hidden border border-slate-200 max-h-48">
+                        <img id="pv-photo-img" src="" alt="Photo PV" class="w-full h-48 object-cover" />
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t grid grid-cols-2 gap-4 text-[11px]">
+                    <div>
+                        <span class="text-slate-400 block">Agent / Déclarant de terrain :</span>
+                        <div class="h-10 border-b border-dashed border-slate-300 mt-1"></div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Visa Coordination PNKB :</span>
+                        <div class="h-10 border-b border-dashed border-slate-300 mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex gap-2 border-t">
+                <button type="button" onclick="window.print()" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-print"></i> <span>Imprimer la Fiche PV</span>
+                </button>
+                <button type="button" onclick="closePvModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="py-6 bg-slate-900 border-t border-slate-800 text-center text-xs text-slate-500">
         PNKB Forest Watch · Coordination Paulin Bahati · Bukavu, Sud-Kivu (RDC)
@@ -531,12 +659,13 @@
     <!-- CHARGEMENT DU SCRIPT APP.JS D'ORIGINE -->
     <script src="app.js"></script>
 
-    <!-- LOGIQUE JAVASCRIPT ROBUSTE ET COMPLÈTE -->
+    <!-- LOGIQUE JAVASCRIPT ROBUSTE ET ÉLÉGANTE -->
     <script>
-        // VARIABLE TEMPORAIRE POUR LA PHOTO DU SIGNALEMENT
         var currentReportPhotoBase64 = null;
+        var mapSatelliteAlertLayers = [];
+        var mapCitizenLayers = [];
 
-        // 1. CARTE LEAFLET MULTI-COUCHES
+        // 1. CARTE MULTI-COUCHES AVEC FILTRAGE DYNAMIQUE (Prop. 3)
         function loadMapRobust() {
             var container = document.getElementById('map');
             if (!container) return;
@@ -608,23 +737,28 @@
                         console.warn('Limites en cours de chargement :', err);
                     });
 
+                // Stockage des alertes satellites
+                mapSatelliteAlertLayers = [];
                 var alerts = (typeof pnkbAlerts !== 'undefined' && pnkbAlerts) ? pnkbAlerts : [];
                 alerts.forEach(function(z) {
                     var color = z.severity === 'HIGH' ? '#ef4444' : '#f59e0b';
-                    L.circle([z.lat, z.lon], {
+                    var circle = L.circle([z.lat, z.lon], {
                         radius: Math.max(300, (z.area_ha || 1) * 40),
                         color: color,
                         fillColor: color,
                         fillOpacity: 0.5,
                         weight: 2
-                    }).addTo(map).bindPopup(
+                    }).bindPopup(
                         '<b>🚨 Perte forestière Sentinel-2 (' + z.severity + ')</b><br>' +
                         'Superficie : <strong>' + z.area_ha + ' ha</strong><br>' +
                         'Position : ' + z.lat + ', ' + z.lon
                     );
+                    circle.addTo(map);
+                    mapSatelliteAlertLayers.push({ layer: circle, data: z });
                 });
 
-                // Pastilles citoyennes jaunes avec photo éventuelle
+                // Stockage des signalements citoyens
+                mapCitizenLayers = [];
                 try {
                     var savedRep = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
                     savedRep.forEach(function(r) {
@@ -634,13 +768,13 @@
                             var lon = parseFloat(parts[1].trim());
                             if (!isNaN(lat) && !isNaN(lon)) {
                                 var photoSnippet = r.photo ? '<div style="margin-top:6px;"><img src="' + r.photo + '" style="width:100%; max-height:100px; object-fit:cover; border-radius:4px;" /></div>' : '';
-                                L.circleMarker([lat, lon], {
+                                var marker = L.circleMarker([lat, lon], {
                                     radius: 8,
                                     color: '#eab308',
                                     fillColor: '#facc15',
                                     fillOpacity: 0.9,
                                     weight: 2.5
-                                }).addTo(map).bindPopup(
+                                }).bindPopup(
                                     '<b>🟡 Signalement Citoyen de Terrain</b><br>' +
                                     'Incident : <strong style="color:#dc2626;">' + r.type + '</strong><br>' +
                                     'Secteur : ' + r.secteur + '<br>' +
@@ -648,6 +782,8 @@
                                     photoSnippet +
                                     '<small style="color:#64748b;">Transmis le ' + r.dateStr + '</small>'
                                 );
+                                marker.addTo(map);
+                                mapCitizenLayers.push({ layer: marker, data: r });
                             }
                         }
                     });
@@ -662,6 +798,42 @@
             } catch(err) {
                 console.error('Erreur Leaflet :', err);
             }
+        }
+
+        // APPLICATION DES FILTRES SUR LA CARTE (Prop. 3)
+        function applyMapFilters() {
+            if (!window.mapInstance) return;
+            var sectorFilter = document.getElementById('map-filter-sector').value;
+            var typeFilter = document.getElementById('map-filter-type').value;
+
+            // Filtre des alertes satellites
+            mapSatelliteAlertLayers.forEach(function(item) {
+                var show = true;
+                if (typeFilter === 'CITIZEN') show = false;
+                if (typeFilter === 'SAT_HIGH' && item.data.severity !== 'HIGH') show = false;
+                if (typeFilter === 'SAT_MED' && item.data.severity !== 'MEDIUM') show = false;
+
+                if (show) {
+                    if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance);
+                } else {
+                    if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer);
+                }
+            });
+
+            // Filtre des signalements citoyens
+            mapCitizenLayers.forEach(function(item) {
+                var show = true;
+                if (typeFilter === 'SAT_HIGH' || typeFilter === 'SAT_MED') show = false;
+                if (sectorFilter !== 'ALL' && !item.data.secteur.toLowerCase().includes(sectorFilter.toLowerCase())) {
+                    show = false;
+                }
+
+                if (show) {
+                    if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance);
+                } else {
+                    if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer);
+                }
+            });
         }
 
         // 2. DESSIN DU GRAPHIQUE HISTORIQUE
@@ -778,7 +950,7 @@
             );
         }
 
-        // 5. GESTION DE LA PHOTO DU SIGNALEMENT (Prop. 1)
+        // 5. GESTION DE LA PHOTO DU SIGNALEMENT
         function previewReportPhoto(event) {
             var file = event.target.files[0];
             if (!file) return;
@@ -787,7 +959,6 @@
             reader.onload = function(e) {
                 var img = new Image();
                 img.onload = function() {
-                    // Compression légère dans un canvas 400px
                     var canvas = document.createElement('canvas');
                     var max = 400;
                     var w = img.width;
@@ -816,12 +987,13 @@
             document.getElementById('photo-status').innerText = 'Aucune photo sélectionnée';
         }
 
-        // 6. ENREGISTREMENT ET AFFICHAGE DU SIGNALEMENT
+        // 6. INITIALISATION & ENREGISTREMENT DU SIGNALEMENT
         document.addEventListener("DOMContentLoaded", function() {
             loadSavedReports();
             fetchTshivangaWeather();
             initNetworkDetector();
-            // Charger la langue enregistrée
+            updateNextScanCountdown();
+
             var savedLang = localStorage.getItem('pnkb_lang') || 'fr';
             document.getElementById('lang-selector').value = savedLang;
             changeLanguage(savedLang);
@@ -896,6 +1068,11 @@
                         '<div class="text-xs text-emerald-400 font-semibold">' + r.secteur + gpsBadge + '</div>' +
                         '<p class="text-xs text-slate-300">' + r.desc + '</p>' +
                         photoHtml +
+                        '<div class="pt-2 flex justify-end">' +
+                        '<button type="button" onclick="openPvModal(' + i + ')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5">' +
+                        '<i class="fa-solid fa-file-contract text-red-400"></i> <span>Générer Fiche PV</span>' +
+                        '</button>' +
+                        '</div>' +
                         '</div>';
             }
             list.innerHTML = html;
@@ -918,7 +1095,7 @@
             window.open('https://wa.me/243850800833?text=' + encodeURIComponent(msg), '_blank');
         }
 
-        // 7. EXPORT EXCEL / CSV UNIVERSEL (Prop. 3)
+        // 7. EXPORT EXCEL / CSV
         function exportReportsCSV() {
             var reports = [];
             try {
@@ -932,7 +1109,6 @@
                 return;
             }
 
-            // Génération CSV avec encodage UTF-8 Excel (\uFEFF)
             var csv = '\uFEFFDate;Secteur;Nature_Incident;Coordonnees_GPS;Description;Avec_Photo\n';
             reports.forEach(function(r) {
                 var safeDesc = (r.desc || '').replace(/;/g, ',').replace(/\n/g, ' ');
@@ -958,14 +1134,77 @@
             URL.revokeObjectURL(url);
         }
 
-        // 8. SÉLECTEUR DE LANGUE 3 LANGUES : FR / EN / SW (Prop. 2)
+        // 8. GESTION DES MODALES : QR CODE & FICHE PV (Prop. 4 & 5)
+        function openQrModal() {
+            document.getElementById('qr-modal').classList.remove('hidden');
+        }
+        function closeQrModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        function openPvModal(index) {
+            var reports = [];
+            try {
+                reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
+            } catch(e) { reports = []; }
+
+            var r = reports[index];
+            if (!r) return;
+
+            document.getElementById('pv-date').innerText = r.dateStr || '--';
+            document.getElementById('pv-secteur').innerText = r.secteur || '--';
+            document.getElementById('pv-type').innerText = r.type || '--';
+            document.getElementById('pv-gps').innerText = r.gps || 'Non renseigné';
+            document.getElementById('pv-desc').innerText = r.desc || '--';
+
+            var photoBox = document.getElementById('pv-photo-container');
+            var photoImg = document.getElementById('pv-photo-img');
+            if (r.photo) {
+                photoImg.src = r.photo;
+                photoBox.classList.remove('hidden');
+            } else {
+                photoBox.classList.add('hidden');
+            }
+
+            document.getElementById('pv-modal').classList.remove('hidden');
+        }
+
+        function closePvModal() {
+            document.getElementById('pv-modal').classList.add('hidden');
+        }
+
+        // 9. COMPTE À REBOURS DU PROCHAIN SCAN SENTINEL-2 (Prop. 2)
+        function updateNextScanCountdown() {
+            var el = document.getElementById('scan-countdown-text');
+            if (!el) return;
+
+            var now = new Date();
+            // Le scan a lieu chaque lundi à 06:00 UTC
+            var nextMonday = new Date();
+            var dayOfWeek = now.getUTCDay(); // 0 = Dimanche, 1 = Lundi, etc.
+            var daysUntilMonday = (1 - dayOfWeek + 7) % 7;
+            if (daysUntilMonday === 0 && now.getUTCHours() >= 6) {
+                daysUntilMonday = 7;
+            }
+            nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday);
+            nextMonday.setUTCHours(6, 0, 0, 0);
+
+            var diffMs = nextMonday - now;
+            var days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            el.innerText = 'Lundi à 06:00 UTC (dans ' + days + 'j ' + hours + 'h ' + minutes + 'm)';
+        }
+
+        // 10. SÉLECTEUR 3 LANGUES : FR / EN / SW
         var i18nDict = {
             fr: {
                 subhead: "Console de Télédétection & Veille Citoyenne",
-                offline: "Mode Hors-Ligne",
+                sosBtn: "SOS SMS",
+                offline: "Hors-Ligne",
                 backHome: "Accueil",
                 shareBtn: "Partager",
-                channelBtn: "Chaîne Alertes",
                 tabAccueil: "Accueil",
                 tabCarte: "Carte Interactive",
                 tabAlertes: "Alertes",
@@ -973,6 +1212,7 @@
                 tabVitrine: "Découvrir le PNKB",
                 tabIndicateurs: "Statistiques",
                 tabSources: "Sources",
+                nextScanLabel: "Prochain scan satellite :",
                 weatherBadge: "Météo en Direct · Station de Tshivanga (2 180 m)",
                 temp: "Température",
                 hum: "Humidité",
@@ -983,7 +1223,7 @@
                 joinChannel: "Rejoindre la Chaîne WhatsApp d'alertes",
                 joinTelegram: "Recevoir sur Telegram",
                 mapTitle: "Carte Interactive & Télédétection du PNKB",
-                mapDesc: "Basculez entre le plan OSM et la vue satellite réelle en haut à droite de la carte.",
+                mapDesc: "Basculez entre le plan OSM et la vue satellite réelle en haut à droite.",
                 legPark: "Limites ICCN",
                 legHigh: "Alerte élevée (≥ 0,5 ha)",
                 legMed: "Vigilance (0,2 à 0,5 ha)",
@@ -1010,10 +1250,10 @@
             },
             en: {
                 subhead: "Remote Sensing & Citizen Watch Console",
-                offline: "Offline Mode",
+                sosBtn: "SOS SMS",
+                offline: "Offline",
                 backHome: "Home",
                 shareBtn: "Share",
-                channelBtn: "Alert Channel",
                 tabAccueil: "Home",
                 tabCarte: "Interactive Map",
                 tabAlertes: "Alerts",
@@ -1021,6 +1261,7 @@
                 tabVitrine: "Discover PNKB",
                 tabIndicateurs: "Statistics",
                 tabSources: "Sources",
+                nextScanLabel: "Next satellite scan:",
                 weatherBadge: "Live Weather · Tshivanga Station (2,180 m)",
                 temp: "Temperature",
                 hum: "Humidity",
@@ -1058,10 +1299,10 @@
             },
             sw: {
                 subhead: "Uangalizi wa Anga na Ulinzi wa Raia",
-                offline: "Bila Mtandao (Offline)",
+                sosBtn: "SOS SMS",
+                offline: "Bila Mtandao",
                 backHome: "Mwanzo",
                 shareBtn: "Shiriki",
-                channelBtn: "Kituo cha Tahadhari",
                 tabAccueil: "Mwanzo",
                 tabCarte: "Ramani ya Hifadhi",
                 tabAlertes: "Tahadhari",
@@ -1069,6 +1310,7 @@
                 tabVitrine: "Fahamu PNKB",
                 tabIndicateurs: "Takwimu",
                 tabSources: "Vyanzo",
+                nextScanLabel: "Ukaguzi ujao wa setilaiti :",
                 weatherBadge: "Hali ya Hewa Moja kwa Moja · Kituo cha Tshivanga (2 180 m)",
                 temp: "Joto",
                 hum: "Unyevu",
@@ -1117,10 +1359,10 @@
             }
 
             setText('i18n-subhead', d.subhead);
+            setText('i18n-sos-btn', d.sosBtn);
             setText('i18n-offline', d.offline);
             setText('i18n-back-home', d.backHome);
             setText('i18n-share-btn', d.shareBtn);
-            setText('i18n-channel-btn', d.channelBtn);
             setText('tab-name-accueil', d.tabAccueil);
             setText('tab-name-carte', d.tabCarte);
             setText('tab-name-alertes', d.tabAlertes);
@@ -1128,6 +1370,7 @@
             setText('tab-name-vitrine', d.tabVitrine);
             setText('tab-name-indicateurs', d.tabIndicateurs);
             setText('tab-name-sources', d.tabSources);
+            setText('i18n-next-scan-label', d.nextScanLabel);
             setText('i18n-weather-badge', d.weatherBadge);
             setText('i18n-temp', d.temp);
             setText('i18n-hum', d.hum);
@@ -1164,7 +1407,7 @@
             setText('i18n-recent-reports', d.recentReports);
         }
 
-        // 9. MÉTÉO EN DIRECT
+        // 11. MÉTÉO EN DIRECT
         function fetchTshivangaWeather() {
             var tempEl = document.getElementById('weather-temp');
             var humEl = document.getElementById('weather-humidity');
@@ -1197,7 +1440,7 @@
                 });
         }
 
-        // 10. DÉTECTION HORS-LIGNE
+        // 12. DÉTECTION HORS-LIGNE
         function initNetworkDetector() {
             var badge = document.getElementById('network-badge');
             function updateStatus() {
