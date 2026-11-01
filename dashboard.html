@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PNKB Forest Watch — Dashboard Opérationnel</title>
-    <!-- Tailwind CSS (Design moderne validé) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="manifest" href="manifest.json">
@@ -77,22 +77,36 @@
             filter: invert(1) hue-rotate(180deg);
         }
 
-        /* STYLE D'IMPRESSION PROPRE POUR LA FICHE PV (Prop. 4 corrigée) */
+        /* GESTION DE L'IMPRESSION (AFFICHE QR & FICHE PV) */
         @media print {
-            body * { visibility: hidden; }
-            #pv-printable-area, #pv-printable-area * { visibility: visible; }
-            #pv-printable-area {
+            body * { visibility: hidden !important; }
+
+            /* Modale QR Code */
+            #qr-modal:not(.hidden) #qr-printable-area,
+            #qr-modal:not(.hidden) #qr-printable-area * {
+                visibility: visible !important;
+            }
+            #qr-modal:not(.hidden) #qr-printable-area {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
+                background: #ffffff !important;
                 color: #000000 !important;
-                background: #ffffff !important;
             }
-            #pv-modal {
-                position: static !important;
+
+            /* Modale PV */
+            #pv-modal:not(.hidden) #pv-printable-area,
+            #pv-modal:not(.hidden) #pv-printable-area * {
+                visibility: visible !important;
+            }
+            #pv-modal:not(.hidden) #pv-printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
                 background: #ffffff !important;
-                padding: 0 !important;
+                color: #000000 !important;
             }
         }
     </style>
@@ -101,7 +115,7 @@
 
     <!-- HEADER SLATE & EMERAUDE -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-emerald-900/40 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex flex-wrap items-center justify-between gap-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-emerald-500/20">
                     <i class="fa-solid fa-tree"></i>
@@ -115,7 +129,7 @@
             <!-- LIENS D'ENTÊTE + SOS SMS + QR CODE + LANGUES -->
             <div class="flex items-center gap-2 sm:gap-3 text-xs">
                 <!-- SÉLECTEUR 3 LANGUES -->
-                <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+                <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-2 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
                     <option value="fr">🇫🇷 FR</option>
                     <option value="en">🇬🇧 EN</option>
                     <option value="sw">🇨🇩 SW</option>
@@ -156,7 +170,7 @@
     </header>
 
     <!-- BARRE DES ONGLETS -->
-    <div class="bg-slate-900/60 border-b border-slate-800 sticky top-20 z-40">
+    <div class="bg-slate-900/60 border-b border-slate-800 sticky top-16 sm:top-20 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button class="tab-btn active" onclick="switchTab(event, 'accueil')"><i class="fa-solid fa-house mr-1"></i> <span id="tab-name-accueil">Accueil</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'carte')"><i class="fa-solid fa-map-location-dot mr-1"></i> <span id="tab-name-carte">Carte Interactive</span></button>
@@ -210,17 +224,8 @@
                 </div>
                 <div class="text-xs text-slate-300 font-mono">
                     <span id="i18n-next-scan-label">Prochain scan satellite :</span>
-                    <strong id="scan-countdown-text" class="text-emerald-400 ml-1">Lundi à 06:00 UTC (calcul...)</strong>
+                    <strong id="scan-countdown-text" class="text-emerald-400 ml-1">Calcul en cours...</strong>
                 </div>
-            </div>
-
-            <div id="scan-banner" class="bg-slate-900 border border-emerald-900/50 p-5 rounded-2xl shadow-xl"></div>
-
-            <div id="impact-stats-card" style="display:none;" class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <span class="text-amber-400">🌟</span> <span id="i18n-impact-title">Notre Impact & Surveillance</span>
-                </h2>
-                <div id="impact-stats"></div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl space-y-4">
@@ -241,7 +246,7 @@
             </div>
         </section>
 
-        <!-- 2. CARTE INTERACTIVE (AVEC FILTRES INTELLIGENTS) -->
+        <!-- 2. CARTE INTERACTIVE -->
         <section id="carte" class="tab-content space-y-4">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -252,7 +257,7 @@
                         <p id="i18n-map-desc" class="text-xs text-slate-400">Basculez entre le plan OSM et la vue satellite réelle en haut à droite.</p>
                     </div>
 
-                    <!-- BARRE DE FILTRES INTELLIGENTS DE LA CARTE -->
+                    <!-- FILTRES -->
                     <div class="flex flex-wrap items-center gap-2">
                         <select id="map-filter-sector" onchange="applyMapFilters()" class="bg-slate-950 text-slate-200 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
                             <option value="ALL">Tous les secteurs</option>
@@ -316,15 +321,9 @@
                 <div id="alerts-summary" class="text-sm text-slate-300"></div>
                 <div id="alerts-list" class="space-y-3"></div>
             </div>
-
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                <h2 id="i18n-journal-title" class="text-lg font-bold text-white">📜 Journal Historique des Alertes</h2>
-                <p id="i18n-journal-desc" class="text-xs text-slate-400">Historique des scans Sentinel-2 accumulés semaine après semaine.</p>
-                <div id="alerts-history"></div>
-            </div>
         </section>
 
-        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC ACCÈS DIRECT AU PV) -->
+        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES -->
         <section id="signalements" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-amber-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -335,7 +334,6 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
-                        <!-- BOUTON PV DIRECT (DÉBLOQUÉ ET VISIBLE IMMÉDIATEMENT) -->
                         <button type="button" onclick="openDirectPvFromForm()" class="px-3.5 py-2 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
                             <i class="fa-solid fa-file-contract"></i>
                             <span>📄 Générer Fiche PV</span>
@@ -421,7 +419,7 @@
                 </form>
             </div>
 
-            <!-- LISTE AVEC BOUTON FICHE PV D'INCIDENT -->
+            <!-- LISTE DES SIGNALEMENTS -->
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 id="i18n-recent-reports" class="text-lg font-bold text-white">Signalements Récents sur le Terrain</h2>
@@ -431,7 +429,7 @@
             </div>
         </section>
 
-        <!-- 5. ONGLET VITRINE : DÉCOUVRIR LE PNKB -->
+        <!-- 5. DÉCOUVRIR LE PNKB -->
         <section id="vitrine" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-sky-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -447,7 +445,6 @@
                     Situé dans la province du Sud-Kivu (RDC), le PNKB est l'un des sanctuaires de biodiversité les plus précieux d'Afrique centrale. Il préserve une transition écologique continue exceptionnelle sur <strong>2 708 mètres de dénivelé</strong> (de 600 m à 3 308 m d'altitude au sommet du Mont Kahuzi).
                 </p>
 
-                <!-- PHOTOS LOCALES DANS DATA/ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
                         <img src="data/chimanuka.jpg" alt="Gorille de Grauer dos argenté Chimanuka PNKB" class="w-full h-56 object-cover" />
@@ -548,14 +545,6 @@
                     <canvas id="forestChart"></canvas>
                 </div>
             </div>
-
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                <h2 class="text-lg font-bold text-white">📊 Pertes Détectées par Scan Hebdomadaire</h2>
-                <p class="text-xs text-slate-400">Hectares de perte forestière estimés à chaque scan Sentinel-2.</p>
-                <div class="pt-2 relative h-72 sm:h-80 w-full">
-                    <canvas id="historyChart"></canvas>
-                </div>
-            </div>
         </section>
 
         <!-- 8. SOURCES -->
@@ -610,7 +599,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2 : FICHE OFFICIELLE PV D'INCIDENT ICCN (CORRIGÉE & IMPRIMABLE PROPRE) -->
+    <!-- MODAL 2 : FICHE OFFICIELLE PV D'INCIDENT ICCN -->
     <div id="pv-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white text-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b pb-2">
@@ -619,7 +608,6 @@
             </div>
 
             <div id="pv-printable-area" class="space-y-4 text-xs leading-relaxed p-2">
-                <!-- En-tête officiel PV -->
                 <div class="text-center border-b-2 border-slate-900 pb-3">
                     <div class="w-10 h-10 mx-auto rounded-xl bg-emerald-700 text-white flex items-center justify-center text-lg font-black mb-1">
                         <i class="fa-solid fa-shield-halved"></i>
@@ -628,7 +616,6 @@
                     <p class="text-[11px] text-slate-600 font-medium">Institut Congolais pour la Conservation de la Nature (ICCN) · PNKB Forest Watch</p>
                 </div>
 
-                <!-- Tableau descriptif -->
                 <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-xs">
                     <div><span class="text-slate-500 block text-[10px] uppercase font-sans">Date & Heure :</span> <strong id="pv-date" class="text-slate-900">--</strong></div>
                     <div><span class="text-slate-500 block text-[10px] uppercase font-sans">Secteur :</span> <strong id="pv-secteur" class="text-slate-900">--</strong></div>
@@ -648,7 +635,6 @@
                     </div>
                 </div>
 
-                <!-- Signatures -->
                 <div class="pt-4 border-t-2 border-slate-900 grid grid-cols-2 gap-6 text-[11px]">
                     <div>
                         <span class="text-slate-500 block font-bold">L'Agent / Écogarde constatateur :</span>
@@ -679,7 +665,7 @@
         PNKB Forest Watch · Coordination Paulin Bahati · Bukavu, Sud-Kivu (RDC)
     </footer>
 
-    <!-- DONNÉES DE SECOURS -->
+    <!-- DONNÉES DE SECOURS AUTOMATIQUES -->
     <script>
         if (typeof forestHistoricalData === 'undefined') {
             window.forestHistoricalData = {
@@ -687,18 +673,27 @@
                 canopyCoverPercent: [98.5, 97.9, 97.2, 96.6, 95.9, 95.2]
             };
         }
+        if (typeof pnkbAlerts === 'undefined') {
+            window.pnkbAlerts = [
+                { lat: -2.316, lon: 28.705, severity: 'HIGH', area_ha: 1.2 },
+                { lat: -2.285, lon: 28.650, severity: 'MEDIUM', area_ha: 0.4 }
+            ];
+        }
     </script>
 
-    <!-- CHARGEMENT DU SCRIPT APP.JS D'ORIGINE -->
+    <!-- SCRIPT APPLICATION -->
     <script src="app.js"></script>
 
-    <!-- LOGIQUE JAVASCRIPT CORRIGÉE ET INFAILLIBLE -->
+    <!-- LOGIQUE JAVASCRIPT ROBUSTE -->
     <script>
         var currentReportPhotoBase64 = null;
         var mapSatelliteAlertLayers = [];
         var mapCitizenLayers = [];
 
-        // 1. CARTE MULTI-COUCHES AVEC FILTRES
+        window.generateReport = window.generateReport || function() {
+            window.print();
+        };
+
         function loadMapRobust() {
             var container = document.getElementById('map');
             if (!container) return;
@@ -767,7 +762,7 @@
                         } catch(e) {}
                     })
                     .catch(function(err) {
-                        console.warn('Limites en cours de chargement :', err);
+                        console.warn('Limites GeoJSON en cours ou non présentes :', err);
                     });
 
                 mapSatelliteAlertLayers = [];
@@ -864,7 +859,6 @@
             });
         }
 
-        // 2. DESSIN DU GRAPHIQUE HISTORIQUE
         function renderForestChart() {
             var canvas = document.getElementById('forestChart');
             if (!canvas) return;
@@ -921,7 +915,6 @@
             });
         }
 
-        // 3. GESTION DES ONGLETS
         window.switchTab = function(evt, tabName) {
             document.querySelectorAll('.tab-content').forEach(function(c) {
                 c.classList.remove('active');
@@ -952,13 +945,12 @@
             }
         };
 
-        // 4. GESTION DU GPS
         function getLocationGPS() {
             var status = document.getElementById('gps-status');
             var gpsInput = document.getElementById('rep-gps');
 
             if (!navigator.geolocation) {
-                status.innerHTML = '<span class="text-amber-400">❌ Géolocalisation non supportée.</span>';
+                status.innerHTML = '<span class="text-amber-400">❌ Géolocalisation non supportée par votre navigateur.</span>';
                 return;
             }
 
@@ -969,16 +961,15 @@
                     var lat = pos.coords.latitude.toFixed(5);
                     var lon = pos.coords.longitude.toFixed(5);
                     gpsInput.value = lat + ', ' + lon;
-                    status.innerHTML = '<span class="text-emerald-400 font-bold">✅ GPS : ' + lat + ', ' + lon + ' (±' + Math.round(pos.coords.accuracy) + 'm)</span>';
+                    status.innerHTML = '<span class="text-emerald-400 font-bold">✅ GPS capturé : ' + lat + ', ' + lon + ' (±' + Math.round(pos.coords.accuracy) + 'm)</span>';
                 },
                 function(err) {
-                    status.innerHTML = '<span class="text-red-400">⚠️ Activez la localisation de votre téléphone.</span>';
+                    status.innerHTML = '<span class="text-red-400">⚠️ Activez le GPS et assurez-vous d\'être sur le lien sécurisé HTTPS.</span>';
                 },
                 { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
             );
         }
 
-        // 5. GESTION DE LA PHOTO
         function previewReportPhoto(event) {
             var file = event.target.files[0];
             if (!file) return;
@@ -1001,7 +992,7 @@
 
                     document.getElementById('photo-preview-img').src = currentReportPhotoBase64;
                     document.getElementById('photo-preview-box').classList.remove('hidden');
-                    document.getElementById('photo-status').innerText = 'Photo prête (jointe au signalement)';
+                    document.getElementById('photo-status').innerText = 'Photo prête (compressée)';
                 };
                 img.src = e.target.result;
             };
@@ -1015,14 +1006,12 @@
             document.getElementById('photo-status').innerText = 'Aucune photo sélectionnée';
         }
 
-        // 6. GESTION DES SIGNALEMENTS (AVEC DONNÉE D'EXEMPLE INITIALE POUR NE JAMAIS ÊTRE VIDE)
         function getStoredReports() {
             var reports = [];
             try {
                 reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
             } catch(e) { reports = []; }
 
-            // Si la liste est vide, on injecte un rapport témoin officiel du PNKB
             if (reports.length === 0) {
                 reports = [{
                     secteur: "Secteur Tshivanga",
@@ -1032,21 +1021,12 @@
                     dateStr: "Exemple de Constat officiel",
                     photo: "data/chimanuka.jpg"
                 }];
-                localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+                try {
+                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+                } catch(e) {}
             }
             return reports;
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            loadSavedReports();
-            fetchTshivangaWeather();
-            initNetworkDetector();
-            updateNextScanCountdown();
-
-            var savedLang = localStorage.getItem('pnkb_lang') || 'fr';
-            document.getElementById('lang-selector').value = savedLang;
-            changeLanguage(savedLang);
-        });
 
         function submitReport(e) {
             e.preventDefault();
@@ -1068,7 +1048,21 @@
 
             var reports = getStoredReports();
             reports.unshift(report);
-            localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+
+            try {
+                localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+            } catch (err) {
+                // Si la mémoire du téléphone est pleine, on garde les photos récentes et on purge les anciennes
+                reports.forEach(function(r, idx) {
+                    if (idx > 1) r.photo = null;
+                });
+                try {
+                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+                } catch(e2) {
+                    report.photo = null;
+                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
+                }
+            }
 
             loadSavedReports();
             document.getElementById('community-report-form').reset();
@@ -1128,7 +1122,6 @@
             window.open('https://wa.me/243850800833?text=' + encodeURIComponent(msg), '_blank');
         }
 
-        // 7. EXPORT EXCEL / CSV
         function exportReportsCSV() {
             var reports = getStoredReports();
             var csv = '\uFEFFDate;Secteur;Nature_Incident;Coordonnees_GPS;Description;Avec_Photo\n';
@@ -1156,7 +1149,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // 8. GESTION DES MODALES : QR CODE & FICHE PV (FONCTIONNEMENT DÉBLOQUÉ)
         function openQrModal() {
             document.getElementById('qr-modal').classList.remove('hidden');
         }
@@ -1187,7 +1179,6 @@
             document.getElementById('pv-modal').classList.remove('hidden');
         }
 
-        // Bouton direct pour ouvrir un PV basé sur ce qui est tapé dans le formulaire
         function openDirectPvFromForm() {
             var secteur = document.getElementById('rep-secteur').value || 'Secteur non spécifié';
             var type = document.getElementById('rep-type').value || 'Incident environnemental';
@@ -1217,7 +1208,6 @@
             document.getElementById('pv-modal').classList.add('hidden');
         }
 
-        // 9. COMPTE À REBOURS DU SCAN SENTINEL-2
         function updateNextScanCountdown() {
             var el = document.getElementById('scan-countdown-text');
             if (!el) return;
@@ -1240,7 +1230,6 @@
             el.innerText = 'Lundi à 06:00 UTC (dans ' + days + 'j ' + hours + 'h ' + minutes + 'm)';
         }
 
-        // 10. SÉLECTEUR 3 LANGUES : FR / EN / SW
         var i18nDict = {
             fr: {
                 subhead: "Console de Télédétection & Veille Citoyenne",
@@ -1260,7 +1249,6 @@
                 temp: "Température",
                 hum: "Humidité",
                 clouds: "Nuages",
-                impactTitle: "Notre Impact & Surveillance",
                 welcomeTitle: "Bienvenue sur la plateforme PNKB Forest Watch",
                 welcomeDesc: "Cette application assure le suivi en continu du couvert forestier du Parc National de Kahuzi-Biega (Sud-Kivu, RDC) en couplant l'imagerie spatiale Copernicus Sentinel-2 et les alertes citoyennes de terrain.",
                 joinChannel: "Rejoindre la Chaîne WhatsApp d'alertes",
@@ -1274,8 +1262,6 @@
                 alertsHeader: "📲 Canaux d'alertes directs et gratuits",
                 alertsSub: "Soyez prévenu dès qu'une perte forestière (≥ 0,5 ha) est détectée dans le parc.",
                 detectedAlerts: "Alertes de Déforestation Détectées",
-                journalTitle: "📜 Journal Historique des Alertes",
-                journalDesc: "Historique des scans Sentinel-2 accumulés semaine après semaine.",
                 formBadge: "Alerte Participative",
                 formTitle: "Transmettre un signalement de terrain",
                 formDesc: "Coupe d'arbres, feu de brousse, braconnage, intrusion observée ? Alertez immédiatement avec vos coordonnées GPS et photos.",
@@ -1309,7 +1295,6 @@
                 temp: "Temperature",
                 hum: "Humidity",
                 clouds: "Cloud Cover",
-                impactTitle: "Our Impact & Monitoring Scope",
                 welcomeTitle: "Welcome to PNKB Forest Watch Platform",
                 welcomeDesc: "This platform provides continuous forest monitoring for Kahuzi-Biega National Park (South Kivu, DRC) by combining Copernicus Sentinel-2 satellite imagery with ground citizen alerts.",
                 joinChannel: "Join WhatsApp Alert Channel",
@@ -1323,8 +1308,6 @@
                 alertsHeader: "📲 Free & Instant Alert Channels",
                 alertsSub: "Get notified as soon as forest loss (≥ 0.5 ha) is detected in the park.",
                 detectedAlerts: "Detected Deforestation Alerts",
-                journalTitle: "📜 Historical Alerts Log",
-                journalDesc: "Sentinel-2 scan history accumulated week after week.",
                 formBadge: "Community Alert",
                 formTitle: "Submit a Field Incident Report",
                 formDesc: "Illegal logging, bushfire, poaching, or unauthorized intrusion? Report immediately with GPS coordinates and photos.",
@@ -1358,7 +1341,6 @@
                 temp: "Joto",
                 hum: "Unyevu",
                 clouds: "Mawingu",
-                impactTitle: "Matokeo Yetu na Ulinzi wa Msitu",
                 welcomeTitle: "Karibu kwenye Mfumo wa PNKB Forest Watch",
                 welcomeDesc: "Programu hii inalinda msitu wa Hifadhi ya Taifa ya Kahuzi-Biega (Kivu Kusini, DRC) kwa kutumia picha za setilaiti ya Copernicus Sentinel-2 na ripoti za wananchi.",
                 joinChannel: "Jiunge na Kituo cha WhatsApp",
@@ -1372,8 +1354,6 @@
                 alertsHeader: "📲 Njia za Bure za Kupokea Tahadhari",
                 alertsSub: "Pata taarifa mara moja miti inapokatwa au moto unapoanza msituni.",
                 detectedAlerts: "Tahadhari za Miti Iliyokatwa",
-                journalTitle: "📜 Kumbukumbu ya Tahadhari",
-                journalDesc: "Historia ya ukaguzi wa setilaiti wiki baada ya wiki.",
                 formBadge: "Ulinzi wa Jamii",
                 formTitle: "Tuma Ripoti ya Uharibifu wa Msitu",
                 formDesc: "Ukataji miti ovyo, moto wa porini, mitego ya wanyama? Tuma taarifa mara moja na vipimo vya GPS na picha.",
@@ -1418,7 +1398,6 @@
             setText('i18n-temp', d.temp);
             setText('i18n-hum', d.hum);
             setText('i18n-clouds', d.clouds);
-            setText('i18n-impact-title', d.impactTitle);
             setText('i18n-welcome-title', d.welcomeTitle);
             setText('i18n-welcome-desc', d.welcomeDesc);
             setText('i18n-join-channel', d.joinChannel);
@@ -1432,8 +1411,6 @@
             setText('i18n-alerts-header', d.alertsHeader);
             setText('i18n-alerts-sub', d.alertsSub);
             setText('i18n-detected-alerts', d.detectedAlerts);
-            setText('i18n-journal-title', d.journalTitle);
-            setText('i18n-journal-desc', d.journalDesc);
             setText('i18n-form-badge', d.formBadge);
             setText('i18n-form-title', d.formTitle);
             setText('i18n-form-desc', d.formDesc);
@@ -1450,12 +1427,12 @@
             setText('i18n-recent-reports', d.recentReports);
         }
 
-        // 11. MÉTÉO EN DIRECT
         function fetchTshivangaWeather() {
             var tempEl = document.getElementById('weather-temp');
             var humEl = document.getElementById('weather-humidity');
             var cloudEl = document.getElementById('weather-clouds');
             var statusEl = document.getElementById('weather-status-text');
+            var iconEl = document.getElementById('weather-icon');
 
             fetch('https://api.open-meteo.com/v1/forecast?latitude=-2.316&longitude=28.705&current=temperature_2m,relative_humidity_2m,cloud_cover,weather_code&timezone=auto')
                 .then(function(res) { return res.json(); })
@@ -1468,10 +1445,13 @@
                         var cover = data.current.cloud_cover;
                         if (cover < 25) {
                             statusEl.innerText = 'Ciel dégagé — Excellente visibilité satellite';
+                            if (iconEl) iconEl.className = 'fa-solid fa-sun text-amber-400';
                         } else if (cover < 65) {
                             statusEl.innerText = 'Partiellement nuageux — Conditions normales';
+                            if (iconEl) iconEl.className = 'fa-solid fa-cloud-sun text-sky-400';
                         } else {
                             statusEl.innerText = 'Brume & Nuages d\'altitude sur le massif';
+                            if (iconEl) iconEl.className = 'fa-solid fa-cloud text-slate-400';
                         }
                     }
                 })
@@ -1483,7 +1463,6 @@
                 });
         }
 
-        // 12. DÉTECTION HORS-LIGNE
         function initNetworkDetector() {
             var badge = document.getElementById('network-badge');
             function updateStatus() {
@@ -1499,6 +1478,17 @@
             window.addEventListener('offline', updateStatus);
             updateStatus();
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            loadSavedReports();
+            fetchTshivangaWeather();
+            initNetworkDetector();
+            updateNextScanCountdown();
+
+            var savedLang = localStorage.getItem('pnkb_lang') || 'fr';
+            document.getElementById('lang-selector').value = savedLang;
+            changeLanguage(savedLang);
+        });
     </script>
 </body>
 </html>
