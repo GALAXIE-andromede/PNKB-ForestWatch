@@ -3,46 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNKB Forestwatch | Parc National de Kahuzi-Biega</title>
-  <!-- Tailwind CSS via CDN -->
+  <title>PNKB Forestwatch — Télédétection & Veille Citoyenne du Kahuzi-Biega</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#059669">
+
+  <style>
+    /* Effet néon vibrant pour le bouton principal */
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.45), 0 0 32px rgba(16, 185, 129, 0.25);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 28px rgba(16, 185, 129, 0.8), 0 0 55px rgba(16, 185, 129, 0.4);
+        transform: scale(1.025);
+      }
+    }
+    .btn-glow-pulse {
+      animation: pulse-glow 2.8s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black min-h-screen flex flex-col">
 
   <!-- NAVBAR -->
-  <header class="fixed top-0 left-0 w-full z-50 bg-slate-950/85 backdrop-blur-md border-b border-emerald-900/30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-3">
+  <header class="fixed top-0 left-0 w-full z-50 bg-slate-950/90 backdrop-blur-md border-b border-emerald-900/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
+      
+      <!-- LOGO -->
+      <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-emerald-500/20">
           <i class="fa-solid fa-tree"></i>
         </div>
         <div class="leading-tight">
-          <span class="text-lg font-black tracking-wide text-white block">PNKB <span class="text-emerald-400">Forestwatch</span></span>
-          <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Kahuzi-Biega · Sud-Kivu (RDC)</span>
+          <span class="text-base sm:text-lg font-black tracking-wide text-white block">PNKB <span class="text-emerald-400">Forestwatch</span></span>
+          <span class="text-[9px] sm:text-[10px] text-slate-400 tracking-wider uppercase block">Kahuzi-Biega · Sud-Kivu (RDC)</span>
         </div>
       </a>
 
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
-        <a href="#metrics" class="hover:text-emerald-400 transition">Impact</a>
-        <a href="dashboard.html" class="hover:text-emerald-400 transition">Découvrir le PNKB</a>
-        <a href="#soutenir" class="text-rose-400 hover:text-rose-300 font-semibold transition">Nous soutenir</a>
+      <!-- NAVIGATION DESKTOP -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
+        <a href="#satellite-demo" class="hover:text-emerald-400 transition" id="i18n-nav-sat">Technologie Spatiale</a>
+        <a href="#qrcode" class="hover:text-emerald-400 transition" id="i18n-nav-qr">Scanner App</a>
+        <a href="#faq" class="hover:text-emerald-400 transition">Questions</a>
+        <a href="#soutenir" class="text-rose-400 hover:text-rose-300 font-semibold transition" id="i18n-nav-support">Soutenir</a>
         <a href="#contact" class="hover:text-emerald-400 transition">Contacts</a>
       </nav>
 
-      <div class="flex items-center gap-2">
-        <!-- Bouton Partager sur WhatsApp -->
-        <a href="https://api.whatsapp.com/send?text=🌳%20Rejoins%20PNKB%20Forest%20Watch%20pour%20protéger%20le%20Parc%20National%20de%20Kahuzi-Biega%20depuis%20ton%20smartphone%20:%20https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>Partager</span>
-        </a>
+      <!-- BOUTONS D'ACTION NAVBAR (SANS SOS SMS) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- SÉLECTEUR 3 LANGUES -->
+        <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-900 text-emerald-400 border border-slate-700 rounded-lg px-2 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="sw">🇨🇩 SW</option>
+        </select>
 
-        <!-- ENTRER DANS LE DASHBOARD -->
-        <a href="dashboard.html" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs sm:text-sm transition shadow-lg shadow-emerald-500/25 flex items-center gap-2">
-          <span>Ouvrir l'application</span>
+        <!-- BOUTON INSTALLER PWA -->
+        <button type="button" id="btn-pwa-install" onclick="installPwaApp()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1.5 shadow-sm" title="Installer l'application sur smartphone">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span class="hidden sm:inline" id="i18n-nav-install">Installer App</span>
+        </button>
+
+        <!-- BOUTON OUVRIR L'APPLICATION ULTRA-ATTIRANT -->
+        <a href="dashboard.html" class="btn-glow-pulse px-3.5 sm:px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-satellite-dish text-slate-950 text-sm"></i>
+          <span id="i18n-nav-open-btn">Ouvrir l'application</span>
           <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
       </div>
@@ -50,139 +81,514 @@
   </header>
 
   <!-- HERO SECTION -->
-  <section class="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden">
+  <section class="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden flex-1">
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-emerald-500/15 blur-[140px] pointer-events-none rounded-full"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-6">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        Veille géospatiale & Sanctuaire des Gorilles de Grauer
+      
+      <!-- BADGE ORBITAL EN DIRECT -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-5 shadow-inner">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="i18n-hero-badge">🛰️ Sentinel-2 : Surveillance spatiale active sur les 600 000 ha</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-        Surveillance satellitaire et citoyenne du <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500">Parc National de Kahuzi-Biega</span>.
+      <!-- GRAND TITRE ACCROCHEUR -->
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight" id="i18n-hero-title">
+        Surveillance satellitaire et citoyenne du <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400">Parc National de Kahuzi-Biega</span>.
       </h1>
 
-      <p class="mt-6 text-base sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-        Détection automatique des déboisements, signalement participatif géolocalisé par GPS et soutien à la recherche environnementale au Sud-Kivu.
+      <p class="mt-5 text-sm sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed" id="i18n-hero-desc">
+        Détection automatique des déboisements par imagerie spatiale européenne, signalements de terrain avec photos certifiées GPS et protection des Gorilles de Grauer au Sud-Kivu (RDC).
       </p>
 
-      <!-- BOUTONS D'ENTRÉE -->
-      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="dashboard.html" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 text-base">
-          <i class="fa-solid fa-layer-group"></i>
-          <span>Accéder au Dashboard & Cartes</span>
+      <!-- GRAND BOUTON PRINCIPAL VIBRANT + LIEN WHATSAPP -->
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="dashboard.html" class="btn-glow-pulse w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 text-slate-950 font-black rounded-2xl shadow-xl transition flex items-center justify-center gap-2.5 text-base sm:text-lg">
+          <i class="fa-solid fa-map-location-dot text-xl"></i>
+          <span id="i18n-hero-cta">Lancer la Console de Surveillance</span>
+          <i class="fa-solid fa-circle-arrow-right text-sm"></i>
         </a>
-        <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" class="w-full sm:w-auto px-6 py-3.5 bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 border border-emerald-600/50 rounded-xl transition flex items-center justify-center gap-2 font-semibold">
-          <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i>
-          <span>Rejoindre la Chaîne WhatsApp</span>
+        <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" class="w-full sm:w-auto px-6 py-4 bg-slate-900/90 hover:bg-slate-800 text-emerald-300 border border-emerald-600/50 rounded-2xl transition flex items-center justify-center gap-2.5 font-bold text-sm">
+          <i class="fa-brands fa-whatsapp text-emerald-400 text-xl"></i>
+          <span id="i18n-hero-whatsapp">Rejoindre la Chaîne d'Alertes</span>
         </a>
+      </div>
+
+      <!-- BADGE DE PREUVE SOCIALE (PROPOSITION 3) -->
+      <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 text-xs sm:text-sm">
+        <span class="text-emerald-400 text-base">👥</span>
+        <span id="i18n-social-proof">Déjà plus de <strong>140 veilleurs citoyens et écogardes</strong> connectés au Sud-Kivu (Bukavu, Miti, Kabare)</span>
+      </div>
+
+      <!-- WIDGET MÉTÉO LIVE TSHIVANGA -->
+      <div class="mt-8 max-w-xl mx-auto p-3.5 bg-slate-900/60 border border-slate-800/80 rounded-2xl flex items-center justify-between gap-3 text-xs font-mono">
+        <div class="flex items-center gap-2.5 text-sky-400">
+          <i id="weather-icon" class="fa-solid fa-cloud-sun text-base"></i>
+          <span class="font-sans font-bold text-slate-300 text-left">Station QG Tshivanga (2 180 m) :</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-200">
+          <span id="weather-temp">21 °C</span>
+          <span class="text-slate-600">|</span>
+          <span id="weather-status">Ciel dégagé</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROPOSITION 1 : COMPARATEUR VISUEL AVANT / APRÈS (SATELLITE SENTINEL-2) -->
+  <section id="satellite-demo" class="py-14 bg-slate-900/50 border-y border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Télédétection en Pratique</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white" id="i18n-demo-title">Comment le satellite Sentinel-2 repère les coupes d'arbres</h2>
+      <p class="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto" id="i18n-demo-desc">
+        À 786 km d'altitude, le capteur multispectral analyse l'indice de verdure (NDVI). Cliquez pour basculer la vue :
+      </p>
+
+      <!-- BOUTONS DU COMPARATEUR -->
+      <div class="flex justify-center gap-2 pt-2">
+        <button type="button" onclick="setSatDemo('before')" id="btn-demo-before" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition shadow-md">
+          🌿 Vue Canopée Intacte
+        </button>
+        <button type="button" onclick="setSatDemo('after')" id="btn-demo-after" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+          🚨 Détection Perte (Infrarouge)
+        </button>
+      </div>
+
+      <!-- ÉCRAN DE DÉMONSTRATION -->
+      <div class="mt-4 p-4 bg-slate-950 border border-slate-800 rounded-3xl max-w-2xl mx-auto shadow-2xl">
+        <div id="demo-box" class="h-56 sm:h-64 rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-all duration-300 bg-emerald-950/40 border border-emerald-800/40">
+          <div id="demo-icon" class="text-4xl mb-2">🌳</div>
+          <h3 id="demo-state-title" class="text-base sm:text-lg font-bold text-emerald-300">Forêt Primaire Continue (Indice NDVI &gt; 0.75)</h3>
+          <p id="demo-state-desc" class="text-xs text-slate-300 mt-2 max-w-md">La canopée absorbe la lumière rouge et réfléchit l'infrarouge. Aucune trouée ni anomalie détectée dans le massif de Kahuzi-Biega.</p>
+          <span id="demo-badge" class="mt-3 px-3 py-1 bg-emerald-900/60 text-emerald-300 rounded-full text-[10px] font-mono border border-emerald-700/50">Statut : Couvert Végétal Optimal</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- MÉTRIQUES RAPIDES -->
-  <section id="metrics" class="py-10 bg-slate-900/60 border-y border-slate-800">
+  <!-- MÉTRIQUES RAPIDES DU PNKB -->
+  <section class="py-10 bg-slate-950 border-b border-slate-800/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
         <div>
-          <p class="text-3xl font-extrabold text-emerald-400">600 000 ha</p>
-          <p class="text-xs text-slate-400 mt-1 uppercase">Massif protégé</p>
+          <p class="text-2xl sm:text-3xl font-black text-emerald-400">600 000 ha</p>
+          <p class="text-[11px] text-slate-400 mt-1 uppercase" id="i18n-met-park">Massif protégé</p>
         </div>
         <div>
-          <p class="text-3xl font-extrabold text-white">3 308 m</p>
-          <p class="text-xs text-slate-400 mt-1 uppercase">Sommet Mont Kahuzi</p>
+          <p class="text-2xl sm:text-3xl font-black text-white">3 308 m</p>
+          <p class="text-[11px] text-slate-400 mt-1 uppercase" id="i18n-met-alt">Sommet Mont Kahuzi</p>
         </div>
         <div>
-          <p class="text-3xl font-extrabold text-emerald-400">&gt; 60%</p>
-          <p class="text-xs text-slate-400 mt-1 uppercase">Gorilles de Grauer mondiaux</p>
+          <p class="text-2xl sm:text-3xl font-black text-emerald-400">&gt; 60%</p>
+          <p class="text-[11px] text-slate-400 mt-1 uppercase" id="i18n-met-gor">Gorilles de Grauer mondiaux</p>
         </div>
         <div>
-          <p class="text-3xl font-extrabold text-white">7 Secteurs</p>
-          <p class="text-xs text-slate-400 mt-1 uppercase">Tshivanga, Itebero, Nzovu...</p>
+          <p class="text-2xl sm:text-3xl font-black text-white">7 Secteurs</p>
+          <p class="text-[11px] text-slate-400 mt-1 uppercase" id="i18n-met-sec">Tshivanga, Itebero, Nzovu...</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SECTION NOUS SOUTENIR (DONS, LEGS & BOURSES ENVIRONNEMENT) -->
-  <section id="soutenir" class="py-20 bg-slate-900/40 border-t border-slate-800">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <span class="text-rose-400 text-xs font-bold tracking-widest uppercase">Mécénat & Recherche</span>
-      <h2 class="text-3xl font-extrabold text-white mt-2">Soutenir PNKB Forest Watch & les Bourses d'Études</h2>
-      <p class="text-slate-400 mt-3 text-sm max-w-2xl mx-auto">
-        Vos contributions soutiennent la maintenance technologique de la plateforme citoyenne et financent des bourses d'études et de recherche universitaire en gestion de l'environnement au profit des jeunes chercheurs congolais du Sud-Kivu.
+  <!-- SECTION QR CODE DIRECTEMENT AFFICHÉ -->
+  <section id="qrcode" class="py-16 bg-slate-900/40 border-b border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Accès Instantané Smartphone</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white" id="i18n-qr-title">Emportez la station de surveillance sur votre téléphone</h2>
+      <p class="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto" id="i18n-qr-desc">
+        Scannez ce QR Code avec l'appareil photo de votre smartphone pour ouvrir directement l'application sur le terrain :
       </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 text-left">
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-8">
+        
+        <!-- CARTE QR CODE CENTRALE BLANCHE -->
+        <div class="bg-white p-5 rounded-3xl border-4 border-emerald-500 shadow-2xl inline-block">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://pnkb-forestwatch.vercel.app/" alt="QR Code PNKB Forest Watch" class="w-48 h-48 mx-auto" />
+          <p class="text-[10px] font-mono font-bold text-slate-800 mt-2 text-center">pnkb-forestwatch.vercel.app</p>
+        </div>
+
+        <!-- 3 AVANTAGES TERRAIN -->
+        <div class="text-left space-y-3 max-w-sm">
+          <div class="flex items-start gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-emerald-400 text-lg">📶</span>
+            <div>
+              <strong class="text-xs text-white block">100 % Autonome & Hors-Ligne</strong>
+              <span class="text-[11px] text-slate-400">Le GPS, la boussole et les signalements fonctionnent sans réseau en forêt.</span>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-emerald-400 text-lg">📷</span>
+            <div>
+              <strong class="text-xs text-white block">Photos certifiées avec filigrane</strong>
+              <span class="text-[11px] text-slate-400">Les coordonnées GPS et la date sont tamponnées sur l'image pour l'ICCN.</span>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-emerald-400 text-lg">🆓</span>
+            <div>
+              <strong class="text-xs text-white block">Totalement gratuit</strong>
+              <span class="text-[11px] text-slate-400">Sans abonnement, conçu au profit de la conservation du parc.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION MINI-FAQ EN ACCORDÉON -->
+  <section id="faq" class="py-16 bg-slate-950 border-b border-slate-800">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-10">
+        <span class="text-emerald-400 text-xs font-bold tracking-widest uppercase">Foire Aux Questions</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1" id="i18n-faq-title">Questions fréquentes sur la plateforme</h2>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Question 1 -->
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/70 overflow-hidden">
+          <button type="button" onclick="toggleFaq(1)" class="w-full p-4 text-left font-bold text-xs sm:text-sm text-white flex justify-between items-center">
+            <span id="i18n-q1">1. L'application consomme-t-elle mes mégas (unités) en forêt ?</span>
+            <i id="faq-icon-1" class="fa-solid fa-chevron-down text-emerald-400 text-xs transition-transform"></i>
+          </button>
+          <div id="faq-ans-1" class="hidden p-4 pt-0 text-xs text-slate-300 border-t border-slate-800/60 leading-relaxed">
+            Non. Une fois chargée, l'application fonctionne comme une PWA autonome. Vous pouvez capturer vos coordonnées GPS, prendre des photos avec filigrane et générer des Fiches PV hors-ligne sans consommer votre forfait internet.
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/70 overflow-hidden">
+          <button type="button" onclick="toggleFaq(2)" class="w-full p-4 text-left font-bold text-xs sm:text-sm text-white flex justify-between items-center">
+            <span id="i18n-q2">2. Comment mes signalements arrivent-ils à l'ICCN ?</span>
+            <i id="faq-icon-2" class="fa-solid fa-chevron-down text-emerald-400 text-xs transition-transform"></i>
+          </button>
+          <div id="faq-ans-2" class="hidden p-4 pt-0 text-xs text-slate-300 border-t border-slate-800/60 leading-relaxed">
+            Vos signalements sont stockés sur votre téléphone et exportables en format officiel (Fiche PV ou Excel/CSV). Vous pouvez aussi les expédier en un clic par WhatsApp dès que vous retrouvez du réseau.
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/70 overflow-hidden">
+          <button type="button" onclick="toggleFaq(3)" class="w-full p-4 text-left font-bold text-xs sm:text-sm text-white flex justify-between items-center">
+            <span id="i18n-q3">3. Puis-je installer l'application sans passer par le Play Store ?</span>
+            <i id="faq-icon-3" class="fa-solid fa-chevron-down text-emerald-400 text-xs transition-transform"></i>
+          </button>
+          <div id="faq-ans-3" class="hidden p-4 pt-0 text-xs text-slate-300 border-t border-slate-800/60 leading-relaxed">
+            Oui. En touchant le bouton « Installer App » dans l'en-tête (ou via le menu de Google Chrome : « Ajouter à l'écran d'accueil »), l'icône de PNKB Forest Watch s'installe directement sur votre téléphone.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION SOUTENIR LA RECHERCHE (100% ANONYMISÉE & INSTITUTIONNELLE) -->
+  <section id="soutenir" class="py-16 bg-slate-900/40 border-b border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <span class="text-rose-400 text-xs font-bold tracking-widest uppercase">Mécénat & Recherche Universitaire</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2" id="i18n-sup-title">Soutenir le Projet & les Bourses d'Études Environnement</h2>
+      <p class="text-slate-400 mt-3 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed" id="i18n-sup-desc">
+        Vos contributions soutiennent la maintenance technologique de la plateforme citoyenne et financent des bourses d'études pour les jeunes chercheurs congolais du Sud-Kivu dédiés à la préservation du PNKB.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 text-left">
         <!-- Airtel Money -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-red-900/40 shadow-lg">
-          <div class="flex items-center justify-between mb-3">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-red-900/40 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold uppercase text-red-400 tracking-wider">Airtel Money (RDC)</span>
             <i class="fa-solid fa-mobile-screen-button text-red-400 text-lg"></i>
           </div>
-          <p class="text-2xl font-black text-white">+243 972 731 872</p>
-          <p class="text-xs text-slate-400 mt-2">Titulaire : <strong class="text-slate-200">Paulin Bahati</strong></p>
+          <p class="text-2xl font-black text-white font-mono">+243 972 731 872</p>
+          <p class="text-[11px] text-slate-400 mt-2">Référence : <strong class="text-slate-200">Fonds d'Appui PNKB Forest Watch</strong></p>
         </div>
 
         <!-- Orange Money -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-orange-900/40 shadow-lg">
-          <div class="flex items-center justify-between mb-3">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-orange-900/40 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold uppercase text-orange-400 tracking-wider">Orange Money (RDC)</span>
             <i class="fa-solid fa-wallet text-orange-400 text-lg"></i>
           </div>
-          <p class="text-2xl font-black text-white">+243 842 403 168</p>
-          <p class="text-xs text-slate-400 mt-2">Titulaire : <strong class="text-slate-200">Paulin Bahati</strong></p>
+          <p class="text-2xl font-black text-white font-mono">+243 842 403 168</p>
+          <p class="text-[11px] text-slate-400 mt-2">Référence : <strong class="text-slate-200">Fonds d'Appui PNKB Forest Watch</strong></p>
         </div>
       </div>
 
-      <div class="mt-6 p-4 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 max-w-xl mx-auto">
-        Pour les <strong>dons institutionnels, legs ou partenariats académiques</strong> : écrivez à <a href="mailto:paulinbahati44@gmail.com" class="text-emerald-400 underline">paulinbahati44@gmail.com</a>.
+      <div class="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 max-w-xl mx-auto">
+        Pour les <strong>dons institutionnels, bourses académiques ou partenariats</strong> : écrivez à <a href="mailto:paulinbahati44@gmail.com" class="text-emerald-400 underline">paulinbahati44@gmail.com</a>.
       </div>
     </div>
   </section>
 
   <!-- SECTION CONTACT OFFICIEL -->
-  <section id="contact" class="py-20 bg-slate-950 border-t border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-2xl mx-auto mb-14">
+  <section id="contact" class="py-14 bg-slate-950 border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
         <span class="text-emerald-400 text-xs font-bold tracking-widest uppercase">Canaux Officiels</span>
-        <h2 class="text-3xl font-extrabold text-white mt-2">Contactez Paulin Bahati & l'équipe</h2>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Contact & Coordination</h2>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
-        <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800">
-          <span class="text-xs uppercase text-slate-400 font-semibold block">Appel Direct</span>
-          <a href="tel:+243972731872" class="text-emerald-400 font-bold text-lg hover:underline block mt-1">+243 972 731 872</a>
-          <span class="text-[11px] text-slate-500 block mt-1">Ligne téléphonique directe</span>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left text-xs">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <span class="uppercase text-slate-400 font-semibold block">Appel Direct</span>
+          <a href="tel:+243972731872" class="text-emerald-400 font-bold text-base hover:underline block mt-1">+243 972 731 872</a>
+          <span class="text-[10px] text-slate-500 block mt-1">Ligne téléphonique de contact</span>
         </div>
 
-        <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800">
-          <span class="text-xs uppercase text-slate-400 font-semibold block">WhatsApp Direct</span>
-          <a href="https://wa.me/243850800833" target="_blank" class="text-emerald-400 font-bold text-lg hover:underline block mt-1">+243 850 800 833</a>
-          <span class="text-[11px] text-slate-500 block mt-1">Coordination PNKB Forest Watch</span>
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <span class="uppercase text-slate-400 font-semibold block">WhatsApp Direct</span>
+          <a href="https://wa.me/243850800833" target="_blank" class="text-emerald-400 font-bold text-base hover:underline block mt-1">+243 850 800 833</a>
+          <span class="text-[10px] text-slate-500 block mt-1">Coordination PNKB Forest Watch</span>
         </div>
 
-        <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800">
-          <span class="text-xs uppercase text-slate-400 font-semibold block">Courrier Électronique</span>
-          <a href="mailto:paulinbahati44@gmail.com" class="text-emerald-400 font-bold text-base hover:underline block mt-1 break-all">paulinbahati44@gmail.com</a>
-          <span class="text-[11px] text-slate-500 block mt-1">Bukavu, Sud-Kivu (RDC)</span>
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <span class="uppercase text-slate-400 font-semibold block">Courrier Électronique</span>
+          <a href="mailto:paulinbahati44@gmail.com" class="text-emerald-400 font-bold text-sm hover:underline block mt-1 break-all">paulinbahati44@gmail.com</a>
+          <span class="text-[10px] text-slate-500 block mt-1">Bukavu, Sud-Kivu (RDC)</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="py-8 bg-slate-950 border-t border-slate-850 text-slate-500 text-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p>© 2026 PNKB Forestwatch — Initiative citoyenne pour le Parc National de Kahuzi-Biega.</p>
-      <div class="flex items-center gap-6">
-        <a href="tel:+243972731872" class="hover:text-emerald-400 transition">Appel : +243 972 731 872</a>
-        <a href="https://wa.me/243850800833" target="_blank" class="hover:text-emerald-400 transition">WhatsApp : +243 850 800 833</a>
-        <a href="https://whatsapp.com/channel/0029Vb94EbL60eBnHy5UNI18" target="_blank" class="text-emerald-400 hover:underline">Chaîne Alertes</a>
-      </div>
+  <!-- FOOTER OFFICIEL VALORISANT VOTRE STATUT -->
+  <footer class="py-8 bg-slate-950 text-center text-xs text-slate-400 space-y-2">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-semibold text-slate-300">
+        Développeur : <span class="text-emerald-400 font-bold">Paulin B.</span> — Étudiant
+      </p>
+      <p class="text-slate-500 text-[11px]">
+        Tous droits réservés — © 2026 PNKB Forestwatch · Parc National de Kahuzi-Biega (Sud-Kivu, RDC)
+      </p>
     </div>
   </footer>
 
+  <!-- LOGIQUE JAVASCRIPT -->
+  <script>
+    var deferredInstallPrompt = null;
+
+    // 1. INSTALLATION PWA
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      var btn = document.getElementById('btn-pwa-install');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    function installPwaApp() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(function(res) {
+          if (res.outcome === 'accepted') {
+            var btn = document.getElementById('btn-pwa-install');
+            if (btn) btn.classList.add('hidden');
+          }
+          deferredInstallPrompt = null;
+        });
+      } else {
+        alert("Pour installer l'application sur votre écran d'accueil Android :\n\n1. Appuyez sur les 3 petits points (⋮) en haut à droite de Google Chrome.\n2. Choisissez 'Installer l'application' ou 'Ajouter à l'écran d'accueil'.");
+      }
+    }
+
+    // 2. DÉMO COMPARATEUR VISUEL AVANT / APRÈS (PROPOSITION 1)
+    function setSatDemo(mode) {
+      var box = document.getElementById('demo-box');
+      var icon = document.getElementById('demo-icon');
+      var title = document.getElementById('demo-state-title');
+      var desc = document.getElementById('demo-state-desc');
+      var badge = document.getElementById('demo-badge');
+      var btnBefore = document.getElementById('btn-demo-before');
+      var btnAfter = document.getElementById('btn-demo-after');
+
+      if (mode === 'after') {
+        box.className = 'h-56 sm:h-64 rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-all duration-300 bg-red-950/40 border border-red-800/60';
+        icon.innerText = '🚨';
+        title.className = 'text-base sm:text-lg font-bold text-red-400';
+        title.innerText = 'Trouée Détectée par Infrarouge (NDVI < 0.40)';
+        desc.innerText = 'Chute brutale de réflectance végétale détectée par Sentinel-2. Alerte automatique générée : coordonnées GPS calculées et envoyées aux écogardes.';
+        badge.className = 'mt-3 px-3 py-1 bg-red-900/60 text-red-300 rounded-full text-[10px] font-mono border border-red-700/50';
+        badge.innerText = 'Alerte Déforestation : 1.4 ha détectés';
+
+        btnAfter.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-red-600 text-white transition shadow-md';
+        btnBefore.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+      } else {
+        box.className = 'h-56 sm:h-64 rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-all duration-300 bg-emerald-950/40 border border-emerald-800/40';
+        icon.innerText = '🌳';
+        title.className = 'text-base sm:text-lg font-bold text-emerald-300';
+        title.innerText = 'Forêt Primaire Continue (Indice NDVI > 0.75)';
+        desc.innerText = 'La canopée absorbe la lumière rouge et réfléchit l\'infrarouge. Aucune trouée ni anomalie détectée dans le massif de Kahuzi-Biega.';
+        badge.className = 'mt-3 px-3 py-1 bg-emerald-900/60 text-emerald-300 rounded-full text-[10px] font-mono border border-emerald-700/50';
+        badge.innerText = 'Statut : Couvert Végétal Optimal';
+
+        btnBefore.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition shadow-md';
+        btnAfter.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+      }
+    }
+
+    // 3. ACCORDÉON FAQ
+    function toggleFaq(num) {
+      var ans = document.getElementById('faq-ans-' + num);
+      var icon = document.getElementById('faq-icon-' + num);
+      if (!ans) return;
+
+      if (ans.classList.contains('hidden')) {
+        ans.classList.remove('hidden');
+        if (icon) icon.className = 'fa-solid fa-chevron-up text-emerald-400 text-xs transition-transform';
+      } else {
+        ans.classList.add('hidden');
+        if (icon) icon.className = 'fa-solid fa-chevron-down text-emerald-400 text-xs transition-transform';
+      }
+    }
+
+    // 4. MÉTÉO EN DIRECT TSHIVANGA
+    function fetchLiveWeather() {
+      var tempEl = document.getElementById('weather-temp');
+      var statusEl = document.getElementById('weather-status');
+      var iconEl = document.getElementById('weather-icon');
+
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=-2.316&longitude=28.705&current=temperature_2m,cloud_cover&timezone=auto')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data && data.current) {
+            tempEl.innerText = Math.round(data.current.temperature_2m) + ' °C';
+            var cover = data.current.cloud_cover;
+            if (cover < 30) {
+              statusEl.innerText = 'Ciel dégagé';
+              iconEl.className = 'fa-solid fa-sun text-amber-400';
+            } else if (cover < 70) {
+              statusEl.innerText = 'Partiellement nuageux';
+              iconEl.className = 'fa-solid fa-cloud-sun text-sky-400';
+            } else {
+              statusEl.innerText = 'Brume sur le massif';
+              iconEl.className = 'fa-solid fa-cloud text-slate-400';
+            }
+          }
+        })
+        .catch(function() {
+          if (tempEl) tempEl.innerText = '21 °C';
+          if (statusEl) statusEl.innerText = 'Conditions optimales';
+        });
+    }
+
+    // 5. TRADUCTION & SYNCHRONISATION 3 LANGUES (FR / EN / SW)
+    var landingDict = {
+      fr: {
+        navSat: "Technologie Spatiale",
+        navQr: "Scanner App",
+        navSupport: "Soutenir",
+        navInstall: "Installer App",
+        navOpenBtn: "Ouvrir l'application",
+        heroBadge: "🛰️ Sentinel-2 : Surveillance spatiale active sur les 600 000 ha",
+        heroTitle: "Surveillance satellitaire et citoyenne du <span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400'>Parc National de Kahuzi-Biega</span>.",
+        heroDesc: "Détection automatique des déboisements par imagerie spatiale européenne, signalements de terrain avec photos certifiées GPS et protection des Gorilles de Grauer au Sud-Kivu (RDC).",
+        heroCta: "Lancer la Console de Surveillance",
+        heroWhatsapp: "Rejoindre la Chaîne d'Alertes",
+        socialProof: "Déjà plus de <strong>140 veilleurs citoyens et écogardes</strong> connectés au Sud-Kivu (Bukavu, Miti, Kabare)",
+        demoTitle: "Comment le satellite Sentinel-2 repère les coupes d'arbres",
+        demoDesc: "À 786 km d'altitude, le capteur multispectral analyse l'indice de verdure (NDVI). Cliquez pour basculer la vue :",
+        metPark: "Massif protégé",
+        metAlt: "Sommet Mont Kahuzi",
+        metGor: "Gorilles de Grauer mondiaux",
+        metSec: "Tshivanga, Itebero, Nzovu...",
+        qrTitle: "Emportez la station de surveillance sur votre téléphone",
+        qrDesc: "Scannez ce QR Code avec l'appareil photo de votre smartphone pour ouvrir directement l'application sur le terrain :",
+        faqTitle: "Questions fréquentes sur la plateforme",
+        supTitle: "Soutenir le Projet & les Bourses d'Études Environnement",
+        supDesc: "Vos contributions soutiennent la maintenance technologique de la plateforme citoyenne et financent des bourses d'études pour les jeunes chercheurs congolais du Sud-Kivu dédiés à la préservation du PNKB."
+      },
+      en: {
+        navSat: "Space Technology",
+        navQr: "Scan App",
+        navSupport: "Support",
+        navInstall: "Install App",
+        navOpenBtn: "Launch Application",
+        heroBadge: "🛰️ Sentinel-2: Active satellite monitoring over 600,000 ha",
+        heroTitle: "Satellite and community monitoring of <span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400'>Kahuzi-Biega National Park</span>.",
+        heroDesc: "Automated deforestation detection using European satellite imagery, GPS-certified community incident reporting, and Grauer's Gorilla conservation in South Kivu (DRC).",
+        heroCta: "Launch Monitoring Console",
+        heroWhatsapp: "Join WhatsApp Alert Channel",
+        socialProof: "Over <strong>140 community rangers & citizens</strong> already connected in South Kivu (Bukavu, Miti, Kabare)",
+        demoTitle: "How Sentinel-2 Satellite Detects Forest Loss",
+        demoDesc: "From 786 km in orbit, multispectral sensors analyze vegetation health (NDVI). Click below to toggle view:",
+        metPark: "Protected Reserve",
+        metAlt: "Mount Kahuzi Peak",
+        metGor: "Global Grauer Gorillas",
+        metSec: "Tshivanga, Itebero, Nzovu...",
+        qrTitle: "Take the Monitoring Station on Your Smartphone",
+        qrDesc: "Scan this QR code with your phone camera to launch the mobile field app immediately:",
+        faqTitle: "Frequently Asked Questions",
+        supTitle: "Support the Project & Student Research Grants",
+        supDesc: "Your support maintains the civic technology infrastructure and funds university research grants for young Congolese scientists dedicated to PNKB preservation."
+      },
+      sw: {
+        navSat: "Teknolojia ya Anga",
+        navQr: "Piga Picha QR",
+        navSupport: "Tusaidie",
+        navInstall: "Weka Kwenye Simu",
+        navOpenBtn: "Fungua App Sasa",
+        heroBadge: "🛰️ Sentinel-2: Uangalizi wa anga unafanya kazi kwenye hekta 600,000",
+        heroTitle: "Ulinzi wa setilaiti na jamii wa <span class='text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400'>Hifadhi ya Taifa ya Kahuzi-Biega</span>.",
+        heroDesc: "Kugundua ukataji miti kwa picha za anga, ripoti za wananchi zenye vipimo vya GPS na ulinzi wa Ngagi wa Grauer huko Kivu Kusini (DRC).",
+        heroCta: "Fungua Mfumo wa Ulinzi",
+        heroWhatsapp: "Jiunge na Kituo cha WhatsApp",
+        socialProof: "Zaidi ya <strong>walinzi na wananchi 140</strong> wameunganishwa Kivu Kusini (Bukavu, Miti, Kabare)",
+        demoTitle: "Jinsi Setilaiti Inavyoona Ukataji wa Miti",
+        demoDesc: "Kutoka urefu wa kilomita 786 angani, setilaiti inachunguza uoto wa asili (NDVI). Bofya kubadilisha mtazamo:",
+        metPark: "Eneo Linalolindwa",
+        metAlt: "Kilele cha Mlima Kahuzi",
+        metGor: "Ngagi wa Grauer Duniani",
+        metSec: "Tshivanga, Itebero, Nzovu...",
+        qrTitle: "Beba Mfumo Huu Kwenye Simu Yako ya Mkononi",
+        qrDesc: "Piga picha QR Code hii na kamera ya simu yako ili kufungua programu shambani:",
+        faqTitle: "Maswali Yanayoulizwa Mara kwa Mara",
+        supTitle: "Kusaidia Mradi na Masomo ya Watafiti Vijana",
+        supDesc: "Michango yako inasaidia kudumisha teknolojia hii na kugharamia masomo ya watafiti vijana wa Kivu Kusini wanaolinda msitu wa PNKB."
+      }
+    };
+
+    function changeLanguage(lang) {
+      if (!landingDict[lang]) lang = 'fr';
+      localStorage.setItem('pnkb_lang', lang);
+      var d = landingDict[lang];
+
+      function setText(id, text) {
+        var el = document.getElementById(id);
+        if (el) el.innerText = text;
+      }
+      function setHtml(id, html) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      }
+
+      setText('i18n-nav-sat', d.navSat);
+      setText('i18n-nav-qr', d.navQr);
+      setText('i18n-nav-support', d.navSupport);
+      setText('i18n-nav-install', d.navInstall);
+      setText('i18n-nav-open-btn', d.navOpenBtn);
+      setText('i18n-hero-badge', d.heroBadge);
+      setHtml('i18n-hero-title', d.heroTitle);
+      setText('i18n-hero-desc', d.heroDesc);
+      setText('i18n-hero-cta', d.heroCta);
+      setText('i18n-hero-whatsapp', d.heroWhatsapp);
+      setHtml('i18n-social-proof', d.socialProof);
+      setText('i18n-demo-title', d.demoTitle);
+      setText('i18n-demo-desc', d.demoDesc);
+      setText('i18n-met-park', d.metPark);
+      setText('i18n-met-alt', d.metAlt);
+      setText('i18n-met-gor', d.metGor);
+      setText('i18n-met-sec', d.metSec);
+      setText('i18n-qr-title', d.qrTitle);
+      setText('i18n-qr-desc', d.qrDesc);
+      setText('i18n-faq-title', d.faqTitle);
+      setText('i18n-sup-title', d.supTitle);
+      setText('i18n-sup-desc', d.supDesc);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      fetchLiveWeather();
+      var savedLang = localStorage.getItem('pnkb_lang') || 'fr';
+      var selector = document.getElementById('lang-selector');
+      if (selector) selector.value = savedLang;
+      changeLanguage(savedLang);
+    });
+  </script>
 </body>
 </html>
