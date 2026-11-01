@@ -77,6 +77,45 @@
             filter: invert(1) hue-rotate(180deg);
         }
 
+        /* MODE PLEIN SOLEIL (CONTRASTE ÉLEVÉ POUR L'EXTÉRIEUR) */
+        body.sunlight-mode {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.sunlight-mode header,
+        body.sunlight-mode .bg-slate-900,
+        body.sunlight-mode .bg-slate-900\/90,
+        body.sunlight-mode .bg-slate-900\/60,
+        body.sunlight-mode .bg-slate-950 {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06) !important;
+        }
+        body.sunlight-mode .text-white {
+            color: #000000 !important;
+        }
+        body.sunlight-mode .text-slate-300,
+        body.sunlight-mode .text-slate-400 {
+            color: #334155 !important;
+        }
+        body.sunlight-mode input,
+        body.sunlight-mode select,
+        body.sunlight-mode textarea {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+        }
+        body.sunlight-mode .tab-btn {
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        body.sunlight-mode .tab-btn.active {
+            background: #059669 !important;
+            color: #ffffff !important;
+        }
+
         /* GESTION DE L'IMPRESSION (AFFICHE QR & FICHE PV) */
         @media print {
             body * { visibility: hidden !important; }
@@ -111,7 +150,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-black min-h-screen flex flex-col transition-colors duration-200">
 
     <!-- HEADER SLATE & EMERAUDE -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-emerald-900/40 sticky top-0 z-50">
@@ -126,8 +165,15 @@
                 </div>
             </div>
 
-            <!-- LIENS D'ENTÊTE + SOS SMS + QR CODE + LANGUES -->
-            <div class="flex items-center gap-2 sm:gap-3 text-xs">
+            <!-- LIENS D'ENTÊTE + MODE SOLEIL + SOS + QR + LANGUES -->
+            <div class="flex items-center gap-2 sm:gap-2.5 text-xs">
+                
+                <!-- BOUTON MODE PLEIN SOLEIL -->
+                <button type="button" onclick="toggleSunlightMode()" id="btn-sunlight" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg font-bold transition flex items-center gap-1 shadow-sm" title="Mode Plein Soleil (Contraste élevé pour l'extérieur)">
+                    <i id="sunlight-icon" class="fa-solid fa-sun text-sm"></i>
+                    <span id="sunlight-text" class="hidden sm:inline">Plein Soleil</span>
+                </button>
+
                 <!-- SÉLECTEUR 3 LANGUES -->
                 <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 text-emerald-400 border border-slate-700 rounded-lg px-2 py-1.5 font-bold text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
                     <option value="fr">🇫🇷 FR</option>
@@ -135,7 +181,7 @@
                     <option value="sw">🇨🇩 SW</option>
                 </select>
 
-                <!-- BOUTON SOS SMS (100% HORS-LIGNE) -->
+                <!-- BOUTON SOS SMS -->
                 <a href="sms:+243972731872?body=URGENCE%20PNKB%20:%20Incident%20grave%20signal%C3%A9%20dans%20le%20parc" 
                    class="px-2.5 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/40 rounded-lg font-bold transition flex items-center gap-1.5 shadow-sm"
                    title="SOS SMS direct (sans internet)">
@@ -177,7 +223,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'alertes')"><i class="fa-solid fa-satellite-dish mr-1"></i> <span id="tab-name-alertes">Alertes</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'signalements')" style="border-color:#d97706; color:#fbbf24;"><i class="fa-solid fa-triangle-exclamation mr-1"></i> <span id="tab-name-signalements">Signalements</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'vitrine')" style="border-color:#0284c7; color:#38bdf8;"><i class="fa-solid fa-mountain mr-1"></i> <span id="tab-name-vitrine">Découvrir le PNKB</span></button>
-            <button class="tab-btn" onclick="switchTab(event, 'comparaison')"><i class="fa-solid fa-clock-rotate-left mr-1"></i> <span>2015-2025</span></button>
+            <button class="tab-btn" onclick="switchTab(event, 'comparaison')"><i class="fa-solid fa-clock-rotate-left mr-1"></i> <span>2015-2026</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'indicateurs')"><i class="fa-solid fa-chart-line mr-1"></i> <span id="tab-name-indicateurs">Statistiques</span></button>
             <button class="tab-btn" onclick="switchTab(event, 'sources')"><i class="fa-solid fa-circle-info mr-1"></i> <span id="tab-name-sources">Sources</span></button>
         </div>
@@ -226,6 +272,15 @@
                     <span id="i18n-next-scan-label">Prochain scan satellite :</span>
                     <strong id="scan-countdown-text" class="text-emerald-400 ml-1">Calcul en cours...</strong>
                 </div>
+            </div>
+
+            <div id="scan-banner" class="bg-slate-900 border border-emerald-900/50 p-5 rounded-2xl shadow-xl"></div>
+
+            <div id="impact-stats-card" style="display:none;" class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="text-amber-400">🌟</span> <span id="i18n-impact-title">Notre Impact & Surveillance</span>
+                </h2>
+                <div id="impact-stats"></div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-2xl shadow-xl space-y-4">
@@ -321,9 +376,14 @@
                 <div id="alerts-summary" class="text-sm text-slate-300"></div>
                 <div id="alerts-list" class="space-y-3"></div>
             </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <h2 class="text-lg font-bold text-white">📜 Journal Historique des Scans</h2>
+                <div id="alerts-history"></div>
+            </div>
         </section>
 
-        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES -->
+        <!-- 4. SIGNALEMENTS COMMUNAUTAIRES (AVEC BOUSSOLE & VISUEL STATUT WHATSAPP) -->
         <section id="signalements" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-amber-800/40 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
@@ -334,6 +394,12 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
+                        <!-- BOUTON VISUEL STATUT WHATSAPP -->
+                        <button type="button" onclick="openStatusModalFromForm()" class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md" title="Créer une image officielle pour votre statut WhatsApp">
+                            <i class="fa-solid fa-camera-retro"></i>
+                            <span>🏷️ Image Statut WhatsApp</span>
+                        </button>
+
                         <button type="button" onclick="openDirectPvFromForm()" class="px-3.5 py-2 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
                             <i class="fa-solid fa-file-contract"></i>
                             <span>📄 Générer Fiche PV</span>
@@ -372,7 +438,7 @@
                         </div>
                     </div>
 
-                    <!-- CHAMP GPS -->
+                    <!-- CHAMP GPS + BOUSSOLE TERRAIN -->
                     <div>
                         <label id="i18n-lbl-gps" class="block text-xs uppercase font-semibold text-slate-300 mb-1">Coordonnées GPS de l'incident</label>
                         <div class="flex gap-2">
@@ -382,7 +448,17 @@
                                 <span id="i18n-btn-gps">📍 Ma position GPS</span>
                             </button>
                         </div>
-                        <span id="gps-status" class="text-[11px] text-slate-500 mt-1 block">Cliquez sur « Ma position GPS » pour capturer automatiquement les coordonnées depuis votre téléphone.</span>
+                        <span id="gps-status" class="text-[11px] text-slate-500 mt-1 block">Touchez « Ma position GPS » pour capturer vos coordonnées.</span>
+                        
+                        <!-- ENCART BOUSSOLE ET CALCULATEUR DE DISTANCE AUTOMATIQUE -->
+                        <div id="nav-compass-box" class="hidden mt-2 p-3 bg-slate-950 border border-sky-800/60 rounded-xl text-xs space-y-1 font-mono">
+                            <div class="flex items-center justify-between text-sky-400 font-bold">
+                                <span>🧭 Navigation Terrain</span>
+                                <span id="nav-bearing-text">Cap calculé</span>
+                            </div>
+                            <div id="nav-closest-sector" class="text-slate-200">Calcul du secteur le plus proche...</div>
+                            <div id="nav-hq-distance" class="text-emerald-400 text-[11px]">Distance vers QG Tshivanga : --</div>
+                        </div>
                     </div>
 
                     <!-- PRISE DE PHOTO -->
@@ -423,7 +499,7 @@
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 id="i18n-recent-reports" class="text-lg font-bold text-white">Signalements Récents sur le Terrain</h2>
-                    <span class="text-xs text-slate-400">Cliquez sur « Fiche PV » sous chaque rapport pour l'imprimer</span>
+                    <span class="text-xs text-slate-400">Cliquez sur « Statut » ou « Fiche PV » sous chaque rapport</span>
                 </div>
                 <div id="community-reports-list" class="space-y-3"></div>
             </div>
@@ -482,29 +558,14 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <h4 class="font-bold text-sky-400 mb-1">🏔️ Gradient Altitudinal</h4>
-                        <p class="text-slate-400 leading-relaxed">De 600 m dans le bassin sédimentaire occidental jusqu'aux sommets des Monts <strong>Kahuzi (3 308 m)</strong> et <strong>Biega (2 790 m)</strong>.</p>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <h4 class="font-bold text-emerald-400 mb-1">🌿 Zonation Végétale</h4>
-                        <p class="text-slate-400 leading-relaxed">Bruyères géantes afro-alpines, bambouseraies d'altitude (<em>Yushania alpina</em>), et forêts équatoriales à Limbali (<em>Gilbertiodendron dewevrei</em>).</p>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                        <h4 class="font-bold text-amber-400 mb-1">⚠️ Corridor de Lemera</h4>
-                        <p class="text-slate-400 leading-relaxed">Goulot d'étranglement reliant la haute altitude (60 000 ha) à la basse altitude (540 000 ha). Zone prioritaire de notre surveillance spatiale.</p>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- 6. COMPARAISON 2015-2025 -->
+        <!-- 6. COMPARAISON HISTORIQUE -->
         <section id="comparaison" class="tab-content space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                <h2 class="text-lg font-bold text-white">Comparaison Historique : 2015 - 2025</h2>
-                <p class="text-xs text-slate-400">Évolution de la canopée observée sur une décennie par imagerie satellite.</p>
+                <h2 class="text-lg font-bold text-white">Comparaison Historique : 2015 - 2026</h2>
+                <p class="text-xs text-slate-400">Évolution de la canopée observée par imagerie satellite depuis le lancement de Sentinel-2.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-center">
                         <h4 class="font-bold text-emerald-400 text-sm mb-2">Référence 2015</h4>
@@ -513,9 +574,9 @@
                         </div>
                     </div>
                     <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-center">
-                        <h4 class="font-bold text-emerald-400 text-sm mb-2">Situation 2025</h4>
+                        <h4 class="font-bold text-emerald-400 text-sm mb-2">Situation 2026</h4>
                         <div class="h-48 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center text-xs text-slate-500">
-                            Imagerie Sentinel-2 référence 2025
+                            Imagerie Sentinel-2 en continu
                         </div>
                     </div>
                 </div>
@@ -527,7 +588,7 @@
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-lg font-bold text-white">Évolution Historique du Couvert Forestier (10 ans)</h2>
+                        <h2 class="text-lg font-bold text-white">Évolution Historique du Couvert Forestier</h2>
                         <p class="text-xs text-slate-400">Pourcentage de canopée dense préservée dans le PNKB.</p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -543,6 +604,13 @@
                 </div>
                 <div class="pt-2 relative h-72 sm:h-80 w-full">
                     <canvas id="forestChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <h2 class="text-lg font-bold text-white">📊 Pertes Détectées par Scan Hebdomadaire</h2>
+                <div class="pt-2 relative h-72 sm:h-80 w-full">
+                    <canvas id="historyChart"></canvas>
                 </div>
             </div>
         </section>
@@ -660,26 +728,38 @@
         </div>
     </div>
 
+    <!-- MODAL 3 : GÉNÉRATEUR D'IMAGE STATUT WHATSAPP (NOUVEAU) -->
+    <div id="status-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 text-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3 max-h-[95vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Visuel Carré Statut WhatsApp</span>
+                <button type="button" onclick="closeStatusModal()" class="text-slate-400 hover:text-white font-bold text-base">✕</button>
+            </div>
+
+            <!-- APERÇU DU CANVAS DE L'IMAGE -->
+            <div class="flex justify-center">
+                <canvas id="whatsapp-canvas" width="600" height="600" class="w-full h-auto rounded-2xl border border-slate-700 shadow-xl bg-slate-950"></canvas>
+            </div>
+
+            <p class="text-[11px] text-slate-400 text-center">
+                Téléchargez cette image pour la poster directement sur votre <strong>Statut WhatsApp</strong> et sensibiliser votre communauté.
+            </p>
+
+            <div class="pt-1 flex gap-2">
+                <button type="button" onclick="downloadStatusImage()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-download"></i> <span>Enregistrer l'image</span>
+                </button>
+                <button type="button" onclick="closeStatusModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="py-6 bg-slate-900 border-t border-slate-800 text-center text-xs text-slate-500">
         PNKB Forest Watch · Coordination Paulin Bahati · Bukavu, Sud-Kivu (RDC)
     </footer>
-
-    <!-- DONNÉES DE SECOURS AUTOMATIQUES -->
-    <script>
-        if (typeof forestHistoricalData === 'undefined') {
-            window.forestHistoricalData = {
-                years: [2015, 2017, 2019, 2021, 2023, 2025],
-                canopyCoverPercent: [98.5, 97.9, 97.2, 96.6, 95.9, 95.2]
-            };
-        }
-        if (typeof pnkbAlerts === 'undefined') {
-            window.pnkbAlerts = [
-                { lat: -2.316, lon: 28.705, severity: 'HIGH', area_ha: 1.2 },
-                { lat: -2.285, lon: 28.650, severity: 'MEDIUM', area_ha: 0.4 }
-            ];
-        }
-    </script>
 
     <!-- SCRIPT APPLICATION -->
     <script src="app.js"></script>
@@ -690,10 +770,120 @@
         var mapSatelliteAlertLayers = [];
         var mapCitizenLayers = [];
 
+        // REPRÉSENTATION DES SECTEURS PNKB POUR LA BOUSSOLE
+        var PNKB_SECTORS = [
+            { name: "Station de Tshivanga (QG)", lat: -2.3164, lon: 28.7051 },
+            { name: "Corridor de Lemera", lat: -2.2850, lon: 28.6620 },
+            { name: "Secteur Itebero", lat: -1.7850, lon: 28.1150 },
+            { name: "Secteur Nzovu", lat: -2.4850, lon: 28.0200 },
+            { name: "Secteur Lulingu", lat: -2.3100, lon: 27.6800 }
+        ];
+
         window.generateReport = window.generateReport || function() {
             window.print();
         };
 
+        // 1. GESTION DU MODE PLEIN SOLEIL
+        function toggleSunlightMode() {
+            var body = document.body;
+            body.classList.toggle('sunlight-mode');
+            var isSunlight = body.classList.contains('sunlight-mode');
+            localStorage.setItem('pnkb_sunlight', isSunlight ? 'true' : 'false');
+            
+            var icon = document.getElementById('sunlight-icon');
+            var text = document.getElementById('sunlight-text');
+            if (isSunlight) {
+                icon.className = 'fa-solid fa-moon text-sm';
+                text.innerText = 'Mode Nuit';
+            } else {
+                icon.className = 'fa-solid fa-sun text-sm';
+                text.innerText = 'Plein Soleil';
+            }
+        }
+
+        function checkSunlightMode() {
+            if (localStorage.getItem('pnkb_sunlight') === 'true') {
+                document.body.classList.add('sunlight-mode');
+                var icon = document.getElementById('sunlight-icon');
+                var text = document.getElementById('sunlight-text');
+                if (icon) icon.className = 'fa-solid fa-moon text-sm';
+                if (text) text.innerText = 'Mode Nuit';
+            }
+        }
+
+        // 2. GÉODÉSIE & BOUSSOLE (DISTANCE & AZIMUT)
+        function computeDistanceKm(lat1, lon1, lat2, lon2) {
+            var R = 6371;
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return Math.round(R * c * 10) / 10;
+        }
+
+        function computeBearing(lat1, lon1, lat2, lon2) {
+            var y = Math.sin((lon2 - lon1) * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180);
+            var x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                    Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos((lon2 - lon1) * Math.PI / 180);
+            var brng = Math.atan2(y, x) * 180 / Math.PI;
+            brng = (brng + 360) % 360;
+            var directions = ["Nord", "Nord-Est", "Est", "Sud-Est", "Sud", "Sud-Ouest", "Ouest", "Nord-Ouest"];
+            var idx = Math.round(brng / 45) % 8;
+            return { deg: Math.round(brng), label: directions[idx] };
+        }
+
+        function getLocationGPS() {
+            var status = document.getElementById('gps-status');
+            var gpsInput = document.getElementById('rep-gps');
+            var navBox = document.getElementById('nav-compass-box');
+
+            if (!navigator.geolocation) {
+                status.innerHTML = '<span class="text-amber-400">❌ Géolocalisation non supportée par votre navigateur.</span>';
+                return;
+            }
+
+            status.innerHTML = '<span class="text-sky-400">⏳ Recherche satellite GPS...</span>';
+
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    var lat = parseFloat(pos.coords.latitude.toFixed(5));
+                    var lon = parseFloat(pos.coords.longitude.toFixed(5));
+                    gpsInput.value = lat + ', ' + lon;
+                    status.innerHTML = '<span class="text-emerald-400 font-bold">✅ GPS capturé : ' + lat + ', ' + lon + ' (±' + Math.round(pos.coords.accuracy) + 'm)</span>';
+
+                    // Calcul du secteur le plus proche
+                    var closest = null;
+                    var minDist = Infinity;
+                    PNKB_SECTORS.forEach(function(sec) {
+                        var d = computeDistanceKm(lat, lon, sec.lat, sec.lon);
+                        if (d < minDist) {
+                            minDist = d;
+                            closest = sec;
+                        }
+                    });
+
+                    // Distance QG Tshivanga
+                    var distHq = computeDistanceKm(lat, lon, PNKB_SECTORS[0].lat, PNKB_SECTORS[0].lon);
+                    var bearingHq = computeBearing(lat, lon, PNKB_SECTORS[0].lat, PNKB_SECTORS[0].lon);
+
+                    var bearingClosest = computeBearing(lat, lon, closest.lat, closest.lon);
+
+                    document.getElementById('nav-bearing-text').innerText = 'Cap ' + bearingClosest.deg + '° (' + bearingClosest.label + ')';
+                    document.getElementById('nav-closest-sector').innerHTML = 'Secteur le plus proche : <strong class="text-white">' + closest.name + '</strong> à <strong class="text-emerald-400">' + minDist + ' km</strong>';
+                    document.getElementById('nav-hq-distance').innerHTML = 'QG Tshivanga : <strong>' + distHq + ' km</strong> (' + bearingHq.label + ' / ' + bearingHq.deg + '°)';
+                    
+                    navBox.classList.remove('hidden');
+                },
+                function(err) {
+                    status.innerHTML = '<span class="text-red-400">⚠️ Activez le GPS de votre téléphone.</span>';
+                },
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+            );
+        }
+
+        // 3. CARTE MULTI-COUCHES
         function loadMapRobust() {
             var container = document.getElementById('map');
             if (!container) return;
@@ -709,10 +899,7 @@
             }
 
             try {
-                var map = L.map('map', {
-                    zoomControl: true,
-                    tap: true
-                }).setView([-2.30, 28.75], 9);
+                var map = L.map('map', { zoomControl: true, tap: true }).setView([-2.30, 28.75], 9);
                 window.mapInstance = map;
 
                 var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -738,32 +925,14 @@
                     .openPopup();
 
                 fetch('data/pnkb_boundary.geojson')
-                    .then(function(res) {
-                        if (res.ok) return res.json();
-                        throw new Error('GeoJSON');
-                    })
+                    .then(function(res) { if (res.ok) return res.json(); throw new Error(); })
                     .then(function(geojson) {
                         var parkLayer = L.geoJSON(geojson, {
-                            style: {
-                                color: '#10b981',
-                                weight: 3,
-                                opacity: 0.95,
-                                fillColor: '#10b981',
-                                fillOpacity: 0.2
-                            },
-                            onEachFeature: function(feature, layer) {
-                                var name = (feature.properties && feature.properties.name) ? feature.properties.name : 'Parc National de Kahuzi-Biega';
-                                layer.bindPopup('<b>🌳 ' + name + '</b><br>Limites officielles ICCN');
-                            }
+                            style: { color: '#10b981', weight: 3, opacity: 0.95, fillColor: '#10b981', fillOpacity: 0.2 }
                         }).addTo(map);
-
-                        try {
-                            map.fitBounds(parkLayer.getBounds(), { padding: [15, 15] });
-                        } catch(e) {}
+                        try { map.fitBounds(parkLayer.getBounds(), { padding: [15, 15] }); } catch(e) {}
                     })
-                    .catch(function(err) {
-                        console.warn('Limites GeoJSON en cours ou non présentes :', err);
-                    });
+                    .catch(function() {});
 
                 mapSatelliteAlertLayers = [];
                 var alerts = (typeof pnkbAlerts !== 'undefined' && pnkbAlerts) ? pnkbAlerts : [];
@@ -775,54 +944,31 @@
                         fillColor: color,
                         fillOpacity: 0.5,
                         weight: 2
-                    }).bindPopup(
-                        '<b>🚨 Perte forestière Sentinel-2 (' + z.severity + ')</b><br>' +
-                        'Superficie : <strong>' + z.area_ha + ' ha</strong><br>' +
-                        'Position : ' + z.lat + ', ' + z.lon
-                    );
+                    }).bindPopup('<b>🚨 Perte forestière (' + z.severity + ')</b><br>Superficie : <strong>' + z.area_ha + ' ha</strong>');
                     circle.addTo(map);
                     mapSatelliteAlertLayers.push({ layer: circle, data: z });
                 });
 
                 mapCitizenLayers = [];
-                try {
-                    var savedRep = getStoredReports();
-                    savedRep.forEach(function(r) {
-                        if (r.gps && r.gps.includes(',')) {
-                            var parts = r.gps.split(',');
-                            var lat = parseFloat(parts[0].trim());
-                            var lon = parseFloat(parts[1].trim());
-                            if (!isNaN(lat) && !isNaN(lon)) {
-                                var photoSnippet = r.photo ? '<div style="margin-top:6px;"><img src="' + r.photo + '" style="width:100%; max-height:100px; object-fit:cover; border-radius:4px;" /></div>' : '';
-                                var marker = L.circleMarker([lat, lon], {
-                                    radius: 8,
-                                    color: '#eab308',
-                                    fillColor: '#facc15',
-                                    fillOpacity: 0.9,
-                                    weight: 2.5
-                                }).bindPopup(
-                                    '<b>🟡 Signalement Citoyen de Terrain</b><br>' +
-                                    'Incident : <strong style="color:#dc2626;">' + r.type + '</strong><br>' +
-                                    'Secteur : ' + r.secteur + '<br>' +
-                                    'Détails : ' + r.desc + '<br>' +
-                                    photoSnippet +
-                                    '<small style="color:#64748b;">Transmis le ' + r.dateStr + '</small>'
-                                );
-                                marker.addTo(map);
-                                mapCitizenLayers.push({ layer: marker, data: r });
-                            }
+                var savedRep = getStoredReports();
+                savedRep.forEach(function(r) {
+                    if (r.gps && r.gps.includes(',')) {
+                        var p = r.gps.split(',');
+                        var lat = parseFloat(p[0].trim());
+                        var lon = parseFloat(p[1].trim());
+                        if (!isNaN(lat) && !isNaN(lon)) {
+                            var marker = L.circleMarker([lat, lon], {
+                                radius: 8, color: '#eab308', fillColor: '#facc15', fillOpacity: 0.9, weight: 2.5
+                            }).bindPopup('<b>🟡 Signalement Citoyen</b><br>Incident : <strong>' + r.type + '</strong><br>' + r.secteur);
+                            marker.addTo(map);
+                            mapCitizenLayers.push({ layer: marker, data: r });
                         }
-                    });
-                } catch(e) {
-                    console.warn('Signalements carte :', e);
-                }
+                    }
+                });
 
-                setTimeout(function() {
-                    map.invalidateSize(true);
-                }, 200);
-
+                setTimeout(function() { map.invalidateSize(true); }, 200);
             } catch(err) {
-                console.error('Erreur Leaflet :', err);
+                console.error(err);
             }
         }
 
@@ -836,29 +982,20 @@
                 if (typeFilter === 'CITIZEN') show = false;
                 if (typeFilter === 'SAT_HIGH' && item.data.severity !== 'HIGH') show = false;
                 if (typeFilter === 'SAT_MED' && item.data.severity !== 'MEDIUM') show = false;
-
-                if (show) {
-                    if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance);
-                } else {
-                    if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer);
-                }
+                if (show) { if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance); }
+                else { if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer); }
             });
 
             mapCitizenLayers.forEach(function(item) {
                 var show = true;
                 if (typeFilter === 'SAT_HIGH' || typeFilter === 'SAT_MED') show = false;
-                if (sectorFilter !== 'ALL' && !item.data.secteur.toLowerCase().includes(sectorFilter.toLowerCase())) {
-                    show = false;
-                }
-
-                if (show) {
-                    if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance);
-                } else {
-                    if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer);
-                }
+                if (sectorFilter !== 'ALL' && !item.data.secteur.toLowerCase().includes(sectorFilter.toLowerCase())) show = false;
+                if (show) { if (!window.mapInstance.hasLayer(item.layer)) item.layer.addTo(window.mapInstance); }
+                else { if (window.mapInstance.hasLayer(item.layer)) window.mapInstance.removeLayer(item.layer); }
             });
         }
 
+        // 4. GRAPHIQUE HISTORIQUE
         function renderForestChart() {
             var canvas = document.getElementById('forestChart');
             if (!canvas) return;
@@ -871,8 +1008,8 @@
             }
 
             var d = (typeof forestHistoricalData !== 'undefined' && forestHistoricalData) ? forestHistoricalData : {
-                years: [2015, 2017, 2019, 2021, 2023, 2025],
-                canopyCoverPercent: [98.5, 97.9, 97.2, 96.6, 95.9, 95.2]
+                years: ['2015', '2018', '2021', '2024', '2026'],
+                canopyCoverPercent: [98.5, 97.5, 96.4, 95.2, 94.5]
             };
 
             new Chart(canvas.getContext('2d'), {
@@ -887,89 +1024,35 @@
                         borderWidth: 3,
                         fill: true,
                         tension: 0.25,
-                        pointBackgroundColor: '#10b981',
-                        pointRadius: 4
+                        pointBackgroundColor: '#10b981'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#e2e8f0', font: { size: 12, weight: 'bold' } }
-                        }
-                    },
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
                     scales: {
-                        y: {
-                            min: 90,
-                            max: 100,
-                            ticks: { color: '#94a3b8' },
-                            grid: { color: 'rgba(51, 65, 85, 0.5)' }
-                        },
-                        x: {
-                            ticks: { color: '#94a3b8' },
-                            grid: { color: 'rgba(51, 65, 85, 0.5)' }
-                        }
+                        y: { min: 90, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51, 65, 85, 0.4)' } },
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51, 65, 85, 0.4)' } }
                     }
                 }
             });
         }
 
+        // 5. GESTION DES ONGLETS
         window.switchTab = function(evt, tabName) {
-            document.querySelectorAll('.tab-content').forEach(function(c) {
-                c.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(function(b) {
-                b.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
 
             var target = document.getElementById(tabName);
-            if (target) {
-                target.classList.add('active');
-            }
+            if (target) target.classList.add('active');
+            if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
 
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('active');
-            }
-
-            if (tabName === 'carte') {
-                setTimeout(function() {
-                    loadMapRobust();
-                }, 100);
-            }
-
-            if (tabName === 'indicateurs') {
-                setTimeout(function() {
-                    renderForestChart();
-                }, 100);
-            }
+            if (tabName === 'carte') setTimeout(loadMapRobust, 100);
+            if (tabName === 'indicateurs') setTimeout(renderForestChart, 100);
         };
 
-        function getLocationGPS() {
-            var status = document.getElementById('gps-status');
-            var gpsInput = document.getElementById('rep-gps');
-
-            if (!navigator.geolocation) {
-                status.innerHTML = '<span class="text-amber-400">❌ Géolocalisation non supportée par votre navigateur.</span>';
-                return;
-            }
-
-            status.innerHTML = '<span class="text-sky-400">⏳ Recherche satellite GPS...</span>';
-
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    var lat = pos.coords.latitude.toFixed(5);
-                    var lon = pos.coords.longitude.toFixed(5);
-                    gpsInput.value = lat + ', ' + lon;
-                    status.innerHTML = '<span class="text-emerald-400 font-bold">✅ GPS capturé : ' + lat + ', ' + lon + ' (±' + Math.round(pos.coords.accuracy) + 'm)</span>';
-                },
-                function(err) {
-                    status.innerHTML = '<span class="text-red-400">⚠️ Activez le GPS et assurez-vous d\'être sur le lien sécurisé HTTPS.</span>';
-                },
-                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-            );
-        }
-
+        // 6. GESTION DES PHOTOS ET SIGNALEMENTS
         function previewReportPhoto(event) {
             var file = event.target.files[0];
             if (!file) return;
@@ -980,12 +1063,10 @@
                 img.onload = function() {
                     var canvas = document.createElement('canvas');
                     var max = 400;
-                    var w = img.width;
-                    var h = img.height;
+                    var w = img.width, h = img.height;
                     if (w > h && w > max) { h = Math.round(h * (max / w)); w = max; }
                     else if (h > max) { w = Math.round(w * (max / h)); h = max; }
-                    canvas.width = w;
-                    canvas.height = h;
+                    canvas.width = w; canvas.height = h;
                     var ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
                     currentReportPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
@@ -1008,22 +1089,18 @@
 
         function getStoredReports() {
             var reports = [];
-            try {
-                reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]');
-            } catch(e) { reports = []; }
+            try { reports = JSON.parse(localStorage.getItem('pnkb_reports') || '[]'); } catch(e) { reports = []; }
 
             if (reports.length === 0) {
                 reports = [{
                     secteur: "Secteur Tshivanga",
                     type: "Abattage d'arbres illégal",
                     gps: "-2.31640, 28.70510",
-                    desc: "Bruits de tronçonneuse et abattage d'arbres d'œuvre signalés en lisière du corridor. Équipe d'écogardes de Tshivanga alertée.",
-                    dateStr: "Exemple de Constat officiel",
+                    desc: "Sciage clandestin d'arbres signalé en lisière du corridor. Équipe d'écogardes de Tshivanga alertée.",
+                    dateStr: "27/10/2026 à 09:30",
                     photo: "data/chimanuka.jpg"
                 }];
-                try {
-                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
-                } catch(e) {}
+                try { localStorage.setItem('pnkb_reports', JSON.stringify(reports)); } catch(e) {}
             }
             return reports;
         }
@@ -1037,14 +1114,7 @@
             var now = new Date();
             var dateStr = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-            var report = { 
-                secteur: secteur, 
-                type: type, 
-                gps: gps, 
-                desc: desc, 
-                dateStr: dateStr,
-                photo: currentReportPhotoBase64 
-            };
+            var report = { secteur: secteur, type: type, gps: gps, desc: desc, dateStr: dateStr, photo: currentReportPhotoBase64 };
 
             var reports = getStoredReports();
             reports.unshift(report);
@@ -1052,16 +1122,9 @@
             try {
                 localStorage.setItem('pnkb_reports', JSON.stringify(reports));
             } catch (err) {
-                // Si la mémoire du téléphone est pleine, on garde les photos récentes et on purge les anciennes
-                reports.forEach(function(r, idx) {
-                    if (idx > 1) r.photo = null;
-                });
-                try {
-                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
-                } catch(e2) {
-                    report.photo = null;
-                    localStorage.setItem('pnkb_reports', JSON.stringify(reports));
-                }
+                reports.forEach(function(r, idx) { if (idx > 1) r.photo = null; });
+                try { localStorage.setItem('pnkb_reports', JSON.stringify(reports)); }
+                catch(e2) { report.photo = null; localStorage.setItem('pnkb_reports', JSON.stringify(reports)); }
             }
 
             loadSavedReports();
@@ -1095,9 +1158,12 @@
                         '<div class="text-xs text-emerald-400 font-semibold">' + r.secteur + gpsBadge + '</div>' +
                         '<p class="text-xs text-slate-300">' + r.desc + '</p>' +
                         photoHtml +
-                        '<div class="pt-2 flex justify-end">' +
+                        '<div class="pt-2 flex flex-wrap justify-end gap-2">' +
+                        '<button type="button" onclick="generateStatusCard(' + i + ')" class="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 rounded-lg text-xs font-semibold transition flex items-center gap-1 shadow-sm">' +
+                        '<i class="fa-solid fa-camera-retro"></i> <span>Statut WhatsApp</span>' +
+                        '</button>' +
                         '<button type="button" onclick="openPvModal(' + i + ')" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">' +
-                        '<i class="fa-solid fa-file-contract text-red-400"></i> <span>📄 Fiche PV Officielle</span>' +
+                        '<i class="fa-solid fa-file-contract text-red-400"></i> <span>📄 Fiche PV</span>' +
                         '</button>' +
                         '</div>' +
                         '</div>';
@@ -1105,18 +1171,138 @@
             list.innerHTML = html;
         }
 
+        // 7. GÉNÉRATEUR D'IMAGE STATUT WHATSAPP (CANVAS 1:1)
+        function drawCanvasStatus(title, sector, gps, dateStr) {
+            var canvas = document.getElementById('whatsapp-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+
+            // Fond dégradé vert émeraude / ardoise sombre
+            var grad = ctx.createLinearGradient(0, 0, 0, 600);
+            grad.addColorStop(0, '#022c22');
+            grad.addColorStop(0.5, '#0f172a');
+            grad.addColorStop(1, '#020617');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 600, 600);
+
+            // Cadre décoratif
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(16, 16, 568, 568);
+
+            // En-tête
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('PARC NATIONAL DE KAHUZI-BIEGA', 300, 60);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '13px monospace';
+            ctx.fillText('ICCN · PNKB FOREST WATCH', 300, 85);
+
+            // Ligne de séparation
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, 105);
+            ctx.lineTo(560, 105);
+            ctx.stroke();
+
+            // Badge d'alerte rouge
+            ctx.fillStyle = '#dc2626';
+            ctx.beginPath();
+            ctx.roundRect(150, 130, 300, 40, 10);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('🚨 ALERTE DE TERRAIN', 300, 156);
+
+            // Nature de l'incident
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.fillText(title, 300, 220);
+
+            // Boîte d'informations
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.roundRect(50, 260, 500, 180, 16);
+            ctx.fill();
+            ctx.strokeStyle = '#334155';
+            ctx.stroke();
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText('📍 SECTEUR :', 80, 305);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(sector, 200, 305);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillText('🧭 COORDONNÉES :', 80, 350);
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 15px monospace';
+            ctx.fillText(gps, 225, 350);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText('🕒 CONSTAT DU :', 80, 395);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(dateStr, 220, 395);
+
+            // Pied de visuel
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText('Protégeons les Gorilles de Grauer & la Canopée', 300, 490);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '12px monospace';
+            ctx.fillText('https://pnkb-forestwatch.vercel.app/', 300, 525);
+        }
+
+        function generateStatusCard(index) {
+            var reports = getStoredReports();
+            var r = reports[index];
+            if (!r) return;
+            drawCanvasStatus(r.type, r.secteur, r.gps, r.dateStr);
+            document.getElementById('status-modal').classList.remove('hidden');
+        }
+
+        function openStatusModalFromForm() {
+            var secteur = document.getElementById('rep-secteur').value || 'Secteur Tshivanga';
+            var type = document.getElementById('rep-type').value || 'Incident environnemental';
+            var gps = document.getElementById('rep-gps').value || 'Position GPS en cours';
+            var now = new Date();
+            var dateStr = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            drawCanvasStatus(type, secteur, gps, dateStr);
+            document.getElementById('status-modal').classList.remove('hidden');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').classList.add('hidden');
+        }
+
+        function downloadStatusImage() {
+            var canvas = document.getElementById('whatsapp-canvas');
+            var link = document.createElement('a');
+            link.download = 'statut_pnkb_' + new Date().toISOString().slice(0, 10) + '.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+        }
+
+        // 8. AUTRES MODALES & OUTILS
         function sendToWhatsAppDirect() {
             var secteur = document.getElementById('rep-secteur').value || 'Secteur non précisé';
             var type = document.getElementById('rep-type').value || 'Incident';
             var gps = document.getElementById('rep-gps').value || 'Position non renseignée';
             var desc = document.getElementById('rep-desc').value || 'Non renseigné';
-            var photoNote = currentReportPhotoBase64 ? '(Une photo a été prise et peut être envoyée en pièce jointe)' : '(Sans photo)';
             
             var msg = '🚨 SIGNALEMENT PNKB FOREST WATCH\n\n' +
                       'Nature : ' + type + '\n' +
                       'Secteur : ' + secteur + '\n' +
-                      'Coordonnées GPS : ' + gps + '\n' +
-                      'Photo : ' + photoNote + '\n' +
+                      'GPS : ' + gps + '\n' +
                       'Détails : ' + desc + '\n\n' +
                       'Plateforme : https://pnkb-forestwatch.vercel.app/';
             window.open('https://wa.me/243850800833?text=' + encodeURIComponent(msg), '_blank');
@@ -1128,14 +1314,7 @@
             reports.forEach(function(r) {
                 var safeDesc = (r.desc || '').replace(/;/g, ',').replace(/\n/g, ' ');
                 var hasPhoto = r.photo ? 'OUI' : 'NON';
-                csv += [
-                    r.dateStr || '',
-                    r.secteur || '',
-                    r.type || '',
-                    r.gps || '',
-                    safeDesc,
-                    hasPhoto
-                ].join(';') + '\n';
+                csv += [r.dateStr || '', r.secteur || '', r.type || '', r.gps || '', safeDesc, hasPhoto].join(';') + '\n';
             });
 
             var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1149,12 +1328,8 @@
             URL.revokeObjectURL(url);
         }
 
-        function openQrModal() {
-            document.getElementById('qr-modal').classList.remove('hidden');
-        }
-        function closeQrModal() {
-            document.getElementById('qr-modal').classList.add('hidden');
-        }
+        function openQrModal() { document.getElementById('qr-modal').classList.remove('hidden'); }
+        function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
 
         function openPvModal(index) {
             var reports = getStoredReports();
@@ -1169,12 +1344,8 @@
 
             var photoBox = document.getElementById('pv-photo-container');
             var photoImg = document.getElementById('pv-photo-img');
-            if (r.photo) {
-                photoImg.src = r.photo;
-                photoBox.classList.remove('hidden');
-            } else {
-                photoBox.classList.add('hidden');
-            }
+            if (r.photo) { photoImg.src = r.photo; photoBox.classList.remove('hidden'); } 
+            else { photoBox.classList.add('hidden'); }
 
             document.getElementById('pv-modal').classList.remove('hidden');
         }
@@ -1194,19 +1365,13 @@
 
             var photoBox = document.getElementById('pv-photo-container');
             var photoImg = document.getElementById('pv-photo-img');
-            if (currentReportPhotoBase64) {
-                photoImg.src = currentReportPhotoBase64;
-                photoBox.classList.remove('hidden');
-            } else {
-                photoBox.classList.add('hidden');
-            }
+            if (currentReportPhotoBase64) { photoImg.src = currentReportPhotoBase64; photoBox.classList.remove('hidden'); } 
+            else { photoBox.classList.add('hidden'); }
 
             document.getElementById('pv-modal').classList.remove('hidden');
         }
 
-        function closePvModal() {
-            document.getElementById('pv-modal').classList.add('hidden');
-        }
+        function closePvModal() { document.getElementById('pv-modal').classList.add('hidden'); }
 
         function updateNextScanCountdown() {
             var el = document.getElementById('scan-countdown-text');
@@ -1216,9 +1381,7 @@
             var nextMonday = new Date();
             var dayOfWeek = now.getUTCDay();
             var daysUntilMonday = (1 - dayOfWeek + 7) % 7;
-            if (daysUntilMonday === 0 && now.getUTCHours() >= 6) {
-                daysUntilMonday = 7;
-            }
+            if (daysUntilMonday === 0 && now.getUTCHours() >= 6) { daysUntilMonday = 7; }
             nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday);
             nextMonday.setUTCHours(6, 0, 0, 0);
 
@@ -1231,200 +1394,20 @@
         }
 
         var i18nDict = {
-            fr: {
-                subhead: "Console de Télédétection & Veille Citoyenne",
-                sosBtn: "SOS SMS",
-                offline: "Hors-Ligne",
-                backHome: "Accueil",
-                shareBtn: "Partager",
-                tabAccueil: "Accueil",
-                tabCarte: "Carte Interactive",
-                tabAlertes: "Alertes",
-                tabSignalements: "Signalements",
-                tabVitrine: "Découvrir le PNKB",
-                tabIndicateurs: "Statistiques",
-                tabSources: "Sources",
-                nextScanLabel: "Prochain scan satellite :",
-                weatherBadge: "Météo en Direct · Station de Tshivanga (2 180 m)",
-                temp: "Température",
-                hum: "Humidité",
-                clouds: "Nuages",
-                welcomeTitle: "Bienvenue sur la plateforme PNKB Forest Watch",
-                welcomeDesc: "Cette application assure le suivi en continu du couvert forestier du Parc National de Kahuzi-Biega (Sud-Kivu, RDC) en couplant l'imagerie spatiale Copernicus Sentinel-2 et les alertes citoyennes de terrain.",
-                joinChannel: "Rejoindre la Chaîne WhatsApp d'alertes",
-                joinTelegram: "Recevoir sur Telegram",
-                mapTitle: "Carte Interactive & Télédétection du PNKB",
-                mapDesc: "Basculez entre le plan OSM et la vue satellite réelle en haut à droite.",
-                legPark: "Limites ICCN",
-                legHigh: "Alerte élevée (≥ 0,5 ha)",
-                legMed: "Vigilance (0,2 à 0,5 ha)",
-                legCitizen: "Signalement citoyen",
-                alertsHeader: "📲 Canaux d'alertes directs et gratuits",
-                alertsSub: "Soyez prévenu dès qu'une perte forestière (≥ 0,5 ha) est détectée dans le parc.",
-                detectedAlerts: "Alertes de Déforestation Détectées",
-                formBadge: "Alerte Participative",
-                formTitle: "Transmettre un signalement de terrain",
-                formDesc: "Coupe d'arbres, feu de brousse, braconnage, intrusion observée ? Alertez immédiatement avec vos coordonnées GPS et photos.",
-                exportCsv: "Excel / CSV",
-                lblSecteur: "Secteur",
-                lblType: "Type d'incident",
-                lblGps: "Coordonnées GPS de l'incident",
-                btnGps: "📍 Ma position GPS",
-                lblPhoto: "Photo de l'incident (Optionnelle)",
-                btnPhoto: "📷 Prendre une photo / Joindre",
-                lblDetails: "Détails & Repères",
-                btnPublish: "Publier sur l'application",
-                btnWhatsapp: "Envoyer aussi sur WhatsApp",
-                recentReports: "Signalements Récents sur le Terrain"
-            },
-            en: {
-                subhead: "Remote Sensing & Citizen Watch Console",
-                sosBtn: "SOS SMS",
-                offline: "Offline",
-                backHome: "Home",
-                shareBtn: "Share",
-                tabAccueil: "Home",
-                tabCarte: "Interactive Map",
-                tabAlertes: "Alerts",
-                tabSignalements: "Field Reports",
-                tabVitrine: "Discover PNKB",
-                tabIndicateurs: "Statistics",
-                tabSources: "Sources",
-                nextScanLabel: "Next satellite scan:",
-                weatherBadge: "Live Weather · Tshivanga Station (2,180 m)",
-                temp: "Temperature",
-                hum: "Humidity",
-                clouds: "Cloud Cover",
-                welcomeTitle: "Welcome to PNKB Forest Watch Platform",
-                welcomeDesc: "This platform provides continuous forest monitoring for Kahuzi-Biega National Park (South Kivu, DRC) by combining Copernicus Sentinel-2 satellite imagery with ground citizen alerts.",
-                joinChannel: "Join WhatsApp Alert Channel",
-                joinTelegram: "Receive on Telegram",
-                mapTitle: "Interactive Map & Remote Sensing of PNKB",
-                mapDesc: "Switch between OSM street map and HD Satellite view at top right.",
-                legPark: "ICCN Boundaries",
-                legHigh: "High Alert (≥ 0.5 ha)",
-                legMed: "Watch Zone (0.2 - 0.5 ha)",
-                legCitizen: "Citizen Report",
-                alertsHeader: "📲 Free & Instant Alert Channels",
-                alertsSub: "Get notified as soon as forest loss (≥ 0.5 ha) is detected in the park.",
-                detectedAlerts: "Detected Deforestation Alerts",
-                formBadge: "Community Alert",
-                formTitle: "Submit a Field Incident Report",
-                formDesc: "Illegal logging, bushfire, poaching, or unauthorized intrusion? Report immediately with GPS coordinates and photos.",
-                exportCsv: "Excel / CSV",
-                lblSecteur: "Sector",
-                lblType: "Incident Type",
-                lblGps: "Incident GPS Coordinates",
-                btnGps: "📍 My GPS Position",
-                lblPhoto: "Incident Photo (Optional)",
-                btnPhoto: "📷 Take Photo / Attach",
-                lblDetails: "Details & Landmarks",
-                btnPublish: "Publish to Application",
-                btnWhatsapp: "Also Send to WhatsApp",
-                recentReports: "Recent Ground Reports"
-            },
-            sw: {
-                subhead: "Uangalizi wa Anga na Ulinzi wa Raia",
-                sosBtn: "SOS SMS",
-                offline: "Bila Mtandao",
-                backHome: "Mwanzo",
-                shareBtn: "Shiriki",
-                tabAccueil: "Mwanzo",
-                tabCarte: "Ramani ya Hifadhi",
-                tabAlertes: "Tahadhari",
-                tabSignalements: "Ripoti za Shamba",
-                tabVitrine: "Fahamu PNKB",
-                tabIndicateurs: "Takwimu",
-                tabSources: "Vyanzo",
-                nextScanLabel: "Ukaguzi ujao wa setilaiti :",
-                weatherBadge: "Hali ya Hewa Moja kwa Moja · Kituo cha Tshivanga (2 180 m)",
-                temp: "Joto",
-                hum: "Unyevu",
-                clouds: "Mawingu",
-                welcomeTitle: "Karibu kwenye Mfumo wa PNKB Forest Watch",
-                welcomeDesc: "Programu hii inalinda msitu wa Hifadhi ya Taifa ya Kahuzi-Biega (Kivu Kusini, DRC) kwa kutumia picha za setilaiti ya Copernicus Sentinel-2 na ripoti za wananchi.",
-                joinChannel: "Jiunge na Kituo cha WhatsApp",
-                joinTelegram: "Pokea kwa Telegram",
-                mapTitle: "Ramani na Picha za Anga za PNKB",
-                mapDesc: "Badilisha kati ya ramani ya kawaida na picha halisi ya setilaiti juu kulia.",
-                legPark: "Mipaka ya ICCN",
-                legHigh: "Tahadhari Kubwa (≥ 0.5 ha)",
-                legMed: "Uangalizi (0.2 hadi 0.5 ha)",
-                legCitizen: "Ripoti ya Wananchi",
-                alertsHeader: "📲 Njia za Bure za Kupokea Tahadhari",
-                alertsSub: "Pata taarifa mara moja miti inapokatwa au moto unapoanza msituni.",
-                detectedAlerts: "Tahadhari za Miti Iliyokatwa",
-                formBadge: "Ulinzi wa Jamii",
-                formTitle: "Tuma Ripoti ya Uharibifu wa Msitu",
-                formDesc: "Ukataji miti ovyo, moto wa porini, mitego ya wanyama? Tuma taarifa mara moja na vipimo vya GPS na picha.",
-                exportCsv: "Excel / CSV",
-                lblSecteur: "Eneo / Kituo",
-                lblType: "Aina ya Tukio",
-                lblGps: "Vipimo vya GPS vya Tukio",
-                btnGps: "📍 Mahali Pangu pa GPS",
-                lblPhoto: "Picha ya Tukio (Hiari)",
-                btnPhoto: "📷 Piga Picha / Ambatisha",
-                lblDetails: "Maelezo Zaidi",
-                btnPublish: "Chapisha Kwenye App",
-                btnWhatsapp: "Tuma Pia kwa WhatsApp",
-                recentReports: "Ripoti za Hivi Karibuni za Shamba"
-            }
+            fr: { subhead: "Console de Télédétection & Veille Citoyenne", sosBtn: "SOS SMS", offline: "Hors-Ligne", backHome: "Accueil", shareBtn: "Partager" },
+            en: { subhead: "Remote Sensing & Citizen Watch Console", sosBtn: "SOS SMS", offline: "Offline", backHome: "Home", shareBtn: "Share" },
+            sw: { subhead: "Uangalizi wa Anga na Ulinzi wa Raia", sosBtn: "SOS SMS", offline: "Bila Mtandao", backHome: "Mwanzo", shareBtn: "Shiriki" }
         };
 
         function changeLanguage(lang) {
             if (!i18nDict[lang]) lang = 'fr';
             localStorage.setItem('pnkb_lang', lang);
             var d = i18nDict[lang];
-
-            function setText(id, text) {
-                var el = document.getElementById(id);
-                if (el) el.innerText = text;
-            }
-
-            setText('i18n-subhead', d.subhead);
-            setText('i18n-sos-btn', d.sosBtn);
-            setText('i18n-offline', d.offline);
-            setText('i18n-back-home', d.backHome);
-            setText('i18n-share-btn', d.shareBtn);
-            setText('tab-name-accueil', d.tabAccueil);
-            setText('tab-name-carte', d.tabCarte);
-            setText('tab-name-alertes', d.tabAlertes);
-            setText('tab-name-signalements', d.tabSignalements);
-            setText('tab-name-vitrine', d.tabVitrine);
-            setText('tab-name-indicateurs', d.tabIndicateurs);
-            setText('tab-name-sources', d.tabSources);
-            setText('i18n-next-scan-label', d.nextScanLabel);
-            setText('i18n-weather-badge', d.weatherBadge);
-            setText('i18n-temp', d.temp);
-            setText('i18n-hum', d.hum);
-            setText('i18n-clouds', d.clouds);
-            setText('i18n-welcome-title', d.welcomeTitle);
-            setText('i18n-welcome-desc', d.welcomeDesc);
-            setText('i18n-join-channel', d.joinChannel);
-            setText('i18n-join-telegram', d.joinTelegram);
-            setText('i18n-map-title', d.mapTitle);
-            setText('i18n-map-desc', d.mapDesc);
-            setText('i18n-leg-park', d.legPark);
-            setText('i18n-leg-high', d.legHigh);
-            setText('i18n-leg-med', d.legMed);
-            setText('i18n-leg-citizen', d.legCitizen);
-            setText('i18n-alerts-header', d.alertsHeader);
-            setText('i18n-alerts-sub', d.alertsSub);
-            setText('i18n-detected-alerts', d.detectedAlerts);
-            setText('i18n-form-badge', d.formBadge);
-            setText('i18n-form-title', d.formTitle);
-            setText('i18n-form-desc', d.formDesc);
-            setText('i18n-export-csv', d.exportCsv);
-            setText('i18n-lbl-secteur', d.lblSecteur);
-            setText('i18n-lbl-type', d.lblType);
-            setText('i18n-lbl-gps', d.lblGps);
-            setText('i18n-btn-gps', d.btnGps);
-            setText('i18n-lbl-photo', d.lblPhoto);
-            setText('i18n-btn-photo', d.btnPhoto);
-            setText('i18n-lbl-details', d.lblDetails);
-            setText('i18n-btn-publish', d.btnPublish);
-            setText('i18n-btn-whatsapp', d.btnWhatsapp);
-            setText('i18n-recent-reports', d.recentReports);
+            if (document.getElementById('i18n-subhead')) document.getElementById('i18n-subhead').innerText = d.subhead;
+            if (document.getElementById('i18n-sos-btn')) document.getElementById('i18n-sos-btn').innerText = d.sosBtn;
+            if (document.getElementById('i18n-offline')) document.getElementById('i18n-offline').innerText = d.offline;
+            if (document.getElementById('i18n-back-home')) document.getElementById('i18n-back-home').innerText = d.backHome;
+            if (document.getElementById('i18n-share-btn')) document.getElementById('i18n-share-btn').innerText = d.shareBtn;
         }
 
         function fetchTshivangaWeather() {
@@ -1441,7 +1424,6 @@
                         tempEl.innerText = Math.round(data.current.temperature_2m) + ' °C';
                         humEl.innerText = data.current.relative_humidity_2m + ' %';
                         cloudEl.innerText = data.current.cloud_cover + ' %';
-                        
                         var cover = data.current.cloud_cover;
                         if (cover < 25) {
                             statusEl.innerText = 'Ciel dégagé — Excellente visibilité satellite';
@@ -1466,13 +1448,8 @@
         function initNetworkDetector() {
             var badge = document.getElementById('network-badge');
             function updateStatus() {
-                if (!navigator.onLine) {
-                    badge.classList.remove('hidden');
-                    badge.classList.add('flex');
-                } else {
-                    badge.classList.add('hidden');
-                    badge.classList.remove('flex');
-                }
+                if (!navigator.onLine) { badge.classList.remove('hidden'); badge.classList.add('flex'); }
+                else { badge.classList.add('hidden'); badge.classList.remove('flex'); }
             }
             window.addEventListener('online', updateStatus);
             window.addEventListener('offline', updateStatus);
@@ -1480,6 +1457,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+            checkSunlightMode();
             loadSavedReports();
             fetchTshivangaWeather();
             initNetworkDetector();
