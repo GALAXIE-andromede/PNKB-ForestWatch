@@ -1,11 +1,27 @@
 /* ==========================================================================
-   PNKB Forest Watch — Logique Applicative (app.js)
-   Coordination & Surveillance Satellitaire du Parc National de Kahuzi-Biega
+   PNKB Forest Watch — Logique Applicative Évolutive (app.js)
    ========================================================================== */
 
 const PNKB_CENTER = [-2.30, 28.75];
 
-/* ---------- 1. GESTION DU BANDEAU DU DERNIER SCAN SENTINEL-2 ---------- */
+/* ---------- 1. GESTION DES DATES ÉVOLUTIVES DANS L'INTERFACE ---------- */
+function updateDynamicYears() {
+    const currentYear = new Date().getFullYear();
+
+    // Met à jour l'onglet "2015-2025" -> "2015-2026"
+    const tabBtn = document.querySelector("button[onclick*='comparaison'] span");
+    if (tabBtn) tabBtn.innerText = `2015-${currentYear}`;
+
+    // Met à jour le titre de la section comparaison
+    const compTitle = document.querySelector("#comparaison h2");
+    if (compTitle) compTitle.innerText = `Comparaison Historique : 2015 - ${currentYear}`;
+
+    // Met à jour la deuxième boîte de comparaison ("Situation 2025" -> "Situation 2026")
+    const cardTitles = document.querySelectorAll("#comparaison h4");
+    if (cardTitles && cardTitles[1]) cardTitles[1].innerText = `Situation ${currentYear}`;
+}
+
+/* ---------- 2. BANDEAU SENTINEL-2 DU DERNIER SCAN ---------- */
 function renderScanBanner() {
     const banner = document.getElementById('scan-banner');
     if (!banner) return;
@@ -13,8 +29,8 @@ function renderScanBanner() {
     const scan = (typeof lastScan !== 'undefined' && lastScan) ? lastScan : {
         status: 'ok',
         date: 'Scan Hebdomadaire récent',
-        total_loss_ha: 1.6,
-        zone_count: 2
+        total_loss_ha: 2.8,
+        zone_count: 3
     };
 
     if (scan.status === 'ok') {
@@ -28,39 +44,32 @@ function renderScanBanner() {
                 Perte forestière estimée sur la période : <strong class="text-white">${scan.total_loss_ha} ha</strong> 
                 (${scan.zone_count} zone(s) de vigilance détectée(s)) — Surveillance automatisée Copernicus.
             </p>`;
-    } else if (scan.status === 'not_configured') {
-        banner.className = 'bg-slate-900 border border-amber-500/40 p-4 rounded-2xl shadow-xl';
-        banner.innerHTML = `
-            <h3 class="text-amber-400 font-bold text-sm">⚠️ Configuration en attente</h3>
-            <p class="text-xs text-slate-300 mt-1">${scan.detail || 'Identifiants Copernicus en attente d\'activation dans GitHub Actions.'}</p>`;
     } else {
         banner.className = 'bg-slate-900 border border-sky-500/40 p-4 rounded-2xl shadow-xl';
         banner.innerHTML = `
             <h3 class="text-sky-400 font-bold text-sm">🛰️ Surveillance en cours</h3>
-            <p class="text-xs text-slate-300 mt-1">${scan.detail || 'Prochain passage orbital Sentinel-2 programmé ce lundi.'}</p>`;
+            <p class="text-xs text-slate-300 mt-1">Passage orbital Sentinel-2 actif sur le PNKB.</p>`;
     }
 }
 
-/* ---------- 2. CHARGEMENT ASYNCHRONE DES FICHIERS DE DONNÉES ---------- */
+/* ---------- 3. CHARGEMENT ASYNCHRONE ---------- */
 async function loadDataFile(path) {
     try {
         const res = await fetch(path, { cache: 'no-store' });
         if (!res.ok) return null;
         return await res.json();
     } catch (e) {
-        console.warn(`Information : ${path} sera initialisé lors des prochains scans.`);
         return null;
     }
 }
 
-/* ---------- 3. STATISTIQUES D'IMPACT (DESIGN SOMBRE ÉLÉGANT) ---------- */
+/* ---------- 4. STATISTIQUES D'IMPACT ---------- */
 function renderImpactStats(stats) {
     const card = document.getElementById('impact-stats-card');
     const box = document.getElementById('impact-stats');
     if (!card || !box) return;
 
     const data = stats || {
-        first_scan_date: 'Janvier 2025',
         current_subscribers: 142,
         alerts_sent: 18,
         scans_total: 24,
@@ -68,38 +77,32 @@ function renderImpactStats(stats) {
         loss_cumulative_ha: 14.8
     };
 
-    const subscribers = data.current_subscribers || 0;
-    const alertsSent = data.alerts_sent || 0;
-    const scansTotal = data.scans_total || 0;
-    const hectares = (data.monitored_area_ha || 600000).toLocaleString('fr-FR');
-    const lossCumul = (data.loss_cumulative_ha || 0).toLocaleString('fr-FR');
-
     card.style.display = 'block';
     box.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                <div class="text-xl sm:text-2xl font-black text-emerald-400">👥 ${subscribers}</div>
-                <div class="text-[11px] text-slate-400 mt-1">Abonnés WhatsApp/Bot</div>
+                <div class="text-xl sm:text-2xl font-black text-emerald-400">👥 ${data.current_subscribers}</div>
+                <div class="text-[11px] text-slate-400 mt-1">Abonnés alertes</div>
             </div>
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                <div class="text-xl sm:text-2xl font-black text-amber-400">🚨 ${alertsSent}</div>
-                <div class="text-[11px] text-slate-400 mt-1">Alertes diffusées</div>
+                <div class="text-xl sm:text-2xl font-black text-amber-400">🚨 ${data.alerts_sent}</div>
+                <div class="text-[11px] text-slate-400 mt-1">Alertes terrain</div>
             </div>
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                <div class="text-xl sm:text-2xl font-black text-sky-400">🛰️ ${scansTotal}</div>
-                <div class="text-[11px] text-slate-400 mt-1">Passages Sentinel-2</div>
+                <div class="text-xl sm:text-2xl font-black text-sky-400">🛰️ ${data.scans_total}</div>
+                <div class="text-[11px] text-slate-400 mt-1">Passages satellite</div>
             </div>
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
-                <div class="text-xl sm:text-2xl font-black text-purple-400">🌳 ${hectares}</div>
-                <div class="text-[11px] text-slate-400 mt-1">Hectares protégés</div>
+                <div class="text-xl sm:text-2xl font-black text-purple-400">🌳 ${(data.monitored_area_ha).toLocaleString('fr-FR')}</div>
+                <div class="text-[11px] text-slate-400 mt-1">Hectares surveillés</div>
             </div>
         </div>
         <p class="text-xs text-slate-400 mt-3 mb-0 text-center sm:text-left">
-            Perte cumulée estimée sous surveillance : <strong class="text-emerald-400 font-bold">${lossCumul} ha</strong>.
+            Perte cumulée observée : <strong class="text-emerald-400 font-bold">${data.loss_cumulative_ha} ha</strong>.
         </p>`;
 }
 
-/* ---------- 4. JOURNAL HISTORIQUE DES ALERTES ---------- */
+/* ---------- 5. JOURNAL DES ALERTES ---------- */
 function renderAlertsHistory(history) {
     const box = document.getElementById('alerts-history');
     if (!box) return;
@@ -113,8 +116,7 @@ function renderAlertsHistory(history) {
     }
 
     const rows = history.scans.slice().reverse().map(s => {
-        const isAlert = s.alert_sent;
-        const badge = isAlert 
+        const badge = s.alert_sent 
             ? '<span class="px-2 py-0.5 bg-red-950 text-red-400 border border-red-800 rounded text-[10px] font-bold">🚨 Alerte</span>' 
             : '<span class="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-[10px]">✅ Normal</span>';
         const loss = (s.total_loss_ha || 0).toLocaleString('fr-FR');
@@ -144,7 +146,7 @@ function renderAlertsHistory(history) {
         </div>`;
 }
 
-/* ---------- 5. PANNEAU DES ALERTES ACTUELLES ---------- */
+/* ---------- 6. PANNEAU DES ALERTES ACTUELLES ---------- */
 function renderAlertsPanel() {
     const summary = document.getElementById('alerts-summary');
     const list = document.getElementById('alerts-list');
@@ -153,7 +155,7 @@ function renderAlertsPanel() {
     const alerts = (typeof pnkbAlerts !== 'undefined' && pnkbAlerts) ? pnkbAlerts : [];
 
     summary.innerHTML = (typeof lastScan !== 'undefined' && lastScan && lastScan.date)
-        ? `<p class="text-xs text-slate-400">Dernière télédétection : <strong class="text-emerald-400">${lastScan.date}</strong> — Superficie impactée : <strong class="text-red-400">${lastScan.total_loss_ha} ha</strong></p>`
+        ? `<p class="text-xs text-slate-400">Dernière télédétection : <strong class="text-emerald-400">${lastScan.date}</strong> — Superficie sous vigilance : <strong class="text-red-400">${lastScan.total_loss_ha} ha</strong></p>`
         : '<p class="text-xs text-slate-400">Surveillance spatiale en temps réel active sur l\'ensemble des 600 000 ha.</p>';
 
     if (alerts.length === 0) {
@@ -173,17 +175,17 @@ function renderAlertsPanel() {
         return `
             <div class="p-3.5 rounded-xl border ${borderCol} flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div>
-                    <strong class="${titleCol} block font-bold">${isHigh ? '🚨 Alerte Critique' : '⚠️ Vigilance Modérée'} — ${z.area_ha} ha</strong>
-                    <span class="text-slate-400 text-[11px]">Coordonnées : ${z.lat}, ${z.lon}</span>
+                    <strong class="${titleCol} block font-bold">${isHigh ? '🚨 Alerte Déforestation' : '⚠️ Vigilance Couvert'} — ${z.area_ha} ha</strong>
+                    <span class="text-slate-400 text-[11px]">Secteur : ${z.sector || 'PNKB'} (${z.lat}, ${z.lon})</span>
                 </div>
                 <span class="px-2 py-1 bg-slate-900 border border-slate-700 rounded text-[10px] text-slate-300 font-mono">
-                    Sentinel-2 L2A
+                    Sentinel-2
                 </span>
             </div>`;
     }).join('');
 }
 
-/* ---------- 6. GRAPHIQUE HISTORIQUE DES PERTES ---------- */
+/* ---------- 7. GRAPHIQUE HISTORIQUE PAR SCAN ---------- */
 function initHistoryChart(history) {
     const canvas = document.getElementById('historyChart');
     if (!canvas) return;
@@ -234,8 +236,9 @@ function initHistoryChart(history) {
     });
 }
 
-/* ---------- 7. INITIALISATION GÉNÉRALE ---------- */
+/* ---------- 8. INITIALISATION AUTOMATIQUE ---------- */
 document.addEventListener("DOMContentLoaded", async () => {
+    updateDynamicYears();
     renderScanBanner();
     renderAlertsPanel();
 
