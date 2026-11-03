@@ -1,4 +1,38 @@
 {
   "_note": "Fichier géré automatiquement par scripts/satellite_scan.py — ne pas modifier à la main. Chaque scan y ajoute une entrée (date, perte estimée, alerte envoyée).",
-  "scans": []
+  "scans": [
+    {
+      "date": "03/11/2026",
+      "status": "ok",
+      "total_loss_ha": 14182.1,
+      "zone_count": 113,
+      "alert_sent": true,
+      "top_zones": [
+        {
+          "type": "deforestation",
+          "lat": -2.2128,
+          "lon": 28.5534,
+          "area_ha": 651.9,
+          "severity": "HIGH",
+          "date": "2026-11-03"
+        },
+        {
+          "type": "deforestation",
+          "lat": -2.2128,
+          "lon": 28.5921,
+          "area_ha": 646.3,
+          "severity": "HIGH",
+          "date": "2026-11-03"
+        },
+        {
+          "type": "deforestation",
+          "lat": -1.8967,
+          "lon": 28.6019,
+          "area_ha": 620.7,
+          "severity": "HIGH",
+          "date": "2026-11-03"
+        }
+      ]
+    }
+  ]
 }
