@@ -99,6 +99,39 @@
           "date": "2026-11-16"
         }
       ]
+    },
+    {
+      "date": "23/11/2026",
+      "status": "ok",
+      "total_loss_ha": 57179.0,
+      "zone_count": 237,
+      "alert_sent": true,
+      "top_zones": [
+        {
+          "type": "deforestation",
+          "lat": -2.3336,
+          "lon": 28.3683,
+          "area_ha": 1373.3,
+          "severity": "HIGH",
+          "date": "2026-11-23"
+        },
+        {
+          "type": "deforestation",
+          "lat": -2.3029,
+          "lon": 28.3671,
+          "area_ha": 1288.2,
+          "severity": "HIGH",
+          "date": "2026-11-23"
+        },
+        {
+          "type": "deforestation",
+          "lat": -2.145,
+          "lon": 28.8174,
+          "area_ha": 1060.1,
+          "severity": "HIGH",
+          "date": "2026-11-23"
+        }
+      ]
     }
   ]
 }
